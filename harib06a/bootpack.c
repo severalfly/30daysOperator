@@ -18,6 +18,7 @@ void HariMain(void)
 	unsigned char *buf_back, buf_mouse[256];
 
 
+
 	init_gdtidt();
 	init_pic();
 	io_sti(); 
