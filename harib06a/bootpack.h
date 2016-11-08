@@ -1,3 +1,5 @@
+#ifndef BOOTPACK_H_H_H
+#define BOOTPACK_H_H_H 
 /* asmhead.nas */
 struct BOOTINFO { /* 0x0ff0-0x0fff */
 	char cyls; /* ƒu[ƒgƒZƒNƒ^‚Í‚Ç‚±‚Ü‚ÅƒfƒBƒXƒN‚ð“Ç‚ñ‚¾‚Ì‚© */
@@ -137,7 +139,7 @@ struct MEMMAN
 	struct FREEINFO free[MEMMAN_FREES];
 };
 
-unsigned int memtest_sub(unsigned int start, unsigned int end);
+// unsigned int memtest_sub(unsigned int start, unsigned int end);
 unsigned int memtest(unsigned int start, unsigned int end);
 void memman_init(struct MEMMAN *man);
 unsigned int memman_total(struct MEMMAN *man);
@@ -146,4 +148,5 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
 unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
+#endif
 

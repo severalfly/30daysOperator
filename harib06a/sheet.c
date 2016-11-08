@@ -1,4 +1,4 @@
-#include "memory.h"
+// #include "memory.h"
 #include "sheet.h"
 
 
@@ -10,7 +10,7 @@ struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize
 	ctl = (struct SHTCTL*) memman_alloc_4k(memman, sizeof(struct SHTCTL));
 	if (ctl == 0)
 	{
-		goto error;
+		goto err;
 	}
 	ctl->vram = vram;
 	ctl->xsize = xsize;
@@ -21,14 +21,14 @@ struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize
 		ctl->sheet0[i].flags = 0;// 标记为未使用
 	}
 	err:
-	return ctl
+	return ctl;
 }
 
 struct SHEET *sheet_alloc(struct SHTCTL *ctl)
 {
 	struct SHEET *sht;
 	int i ;
-	for (int i = 0; i < MAX_SHEETS; ++i)
+	for (i = 0; i < MAX_SHEETS; ++i)
 	{
 		if(ctl->sheet0[i].flags == 0)
 		{
@@ -41,7 +41,15 @@ struct SHEET *sheet_alloc(struct SHTCTL *ctl)
 	return 0;//当前所有的图层都在使用，这种情况应该不会出现的，
 }
 
-void sheet_setbf(struct SHEET *sht, unsigned char *buf, int xsize, int ysize , int col_inv)
+/**
+ * 设置缓存信息
+ * @param
+ * @param
+ * @param
+ * @param
+ * @param
+ */
+void sheet_setbuf(struct SHEET *sht, unsigned char *buf, int xsize, int ysize , int col_inv)
 {
 	sht->buf = buf;
 	sht->bxsize = xsize;
@@ -49,3 +57,133 @@ void sheet_setbf(struct SHEET *sht, unsigned char *buf, int xsize, int ysize , i
 	sht->col_inv = col_inv;
 	return;
 }
+
+/**
+* 程序主要做的是将sht 图层移动到height 层
+* 所以代码中首先要做的就是存储sht 的高度信息，
+*/
+void sheet_updown(struct SHTCTL *ctl, struct SHEET *sht, int height)
+{
+	int h, old = sht->height;
+	// 指定高度出错，此处做校验
+	if(height > ctl->top + 1)
+	{
+		height = ctl->top + 1;
+	}
+	if(height < -1 )
+	{
+		height = -1;
+	}
+	sht->height = height;
+	// 下面主要是对sheets[] 重新排列，目测应该是插入到合适位置就可以
+	if(old > height)
+	{
+		if (height >= 0)
+		{
+			for( h = old; h > height; --h)
+			{
+				ctl->sheets[h] = ctl->sheets[h -1];
+				ctl->sheets[h]->height = h;
+			}
+			ctl->sheets[height] = sht;// 已经找到合适位置
+		}
+		else
+		{
+			// height 为负，则隐藏之
+			for(h = old; h < ctl->top; ++h)
+			{
+				ctl->sheets[h] = ctl->sheets[h + 1];
+				ctl->sheets[h]->height = h;
+			}
+			ctl->top --;// 当前最大图层数减1， 因为图层少了一个
+		}
+		sheet_refresh(ctl);
+	}
+	else if (old < height)
+	{
+		if (old >= 0)
+		{
+			//  把中间的拉下去
+			for (h = old; h < height; h ++)
+			{
+				ctl->sheets[h] = ctl->sheets[h + 1];
+				ctl->sheets[h]->height = h;
+			}
+			ctl->sheets[height] = sht;
+		}
+		else // 由隐藏状态转为显示状态
+		{
+			// 将已在上面的提上去
+			for(h = ctl->top; h >= height ; h --)
+			{
+				ctl->sheets[h+1] = ctl->sheets[h];
+				ctl->sheets[h+1]->height = h + 1;
+			}
+			ctl->sheets[height] = sht;
+			ctl->top ++;// 多了一层
+		}
+		sheet_refresh(ctl);
+	}
+	return;
+}
+
+void sheet_refresh(struct SHTCTL *ctl)
+{
+	int h, bx, by, vx, vy;
+	unsigned char *buf, c, *vram = ctl->vram;
+	struct SHEET *sht;
+	for (h = 0; h <= ctl->top; ++h)
+	{
+		sht = ctl->sheets[h];
+		buf = sht->buf;
+		for(by = 0; by < sht->bysize; by ++)
+		{
+			vy = sht->vy0 + by;
+			for(bx = 0; bx < sht->bxsize ; bx ++)
+			{
+				vx = sht->vx0 + bx;
+				c = buf[by * sht->bxsize + bx];
+				if(c != sht->col_inv)
+				{
+					vram[vy*ctl->xsize + vx] = c;
+				}
+			}
+		}
+	}
+	return;
+}
+
+/**
+ * 移动位置
+ * @param
+ * @param
+ * @param
+ * @param
+ */
+void sheet_slide(struct SHTCTL *ctl, struct SHEET *sht, int vx0, int vy0)
+{
+	sht->vx0 = vx0;
+	sht->vy0 = vy0;
+	if(sht->height > 0)
+	{
+		sheet_refresh(ctl);
+	}
+	return ;
+}
+
+/**
+ * 释放一个
+ * @param
+ * @param
+ */
+void sheet_free(struct SHTCTL *ctl, struct SHEET *sht)
+{
+	if(sht->height >= 0)
+	{
+		sheet_updown(ctl, sht, -1);
+	}
+	sht->flags = 0;
+	return ;
+}
+
+
