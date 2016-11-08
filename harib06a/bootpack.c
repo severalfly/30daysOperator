@@ -16,8 +16,7 @@ void HariMain(void)
 	struct SHTCTL * shtctl;
 	struct SHEET *sht_back, *sht_mouse;
 	unsigned char *buf_back, buf_mouse[256];
-
-
+	// test
 
 	init_gdtidt();
 	init_pic();
