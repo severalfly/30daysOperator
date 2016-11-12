@@ -17,8 +17,10 @@ struct TIMER
 };
 struct TIMERCTL
 {
-	unsigned int count;
-	struct TIMER timer[MAX_TIMER];
+	unsigned int count, next, using;
+	struct TIMER *timers[MAX_TIMER];
+	struct TIMER timers0[MAX_TIMER];
+	// struct TIMER timer[MAX_TIMER];
 };
 void init_pit();
 void inthandler20(int *esp);
