@@ -25,6 +25,7 @@ void load_idtr(int limit, int addr);
 int load_cr0(void);
 void store_cr0(int cr0);
 void asm_inthandler21(void);
+void asm_inthandler20(void);
 void asm_inthandler27(void);
 void asm_inthandler2c(void);
 
@@ -149,7 +150,7 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
 unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
-
+extern struct TIMERCTL timerctl;
 
 #endif
 

@@ -1,5 +1,6 @@
 
 #include <stdio.h>
+#include "timer.h"
 #include "bootpack.h"
 #include "sheet.h"
 
@@ -20,10 +21,11 @@ void HariMain(void)
 
 	init_gdtidt();
 	init_pic();
-	io_sti(); 
+	io_sti();  // IDT PIC 设置完成，CPU　中断开启
 	fifo8_init(&keyfifo, 32, keybuf);
 	fifo8_init(&mousefifo, 128, mousebuf);
-	io_out8(PIC0_IMR, 0xf9); 
+	init_pit();
+	io_out8(PIC0_IMR, 0xf8); // PIT PIC1 和键盘设置为许可
 	io_out8(PIC1_IMR, 0xef); 
 	init_keyboard();
 	enable_mouse(&mdec);
@@ -77,8 +79,8 @@ void HariMain(void)
 	
 
 	for (;;) {
-		count ++;
-		sprintf(s, "%010d", count);
+		
+		sprintf(s, "%010d", timerctl.count);
 		boxfill8(buf_win, 160, COL8_C6C6C6, 40, 28, 119, 43);
 		putfonts8_asc(buf_win, 160, 40, 28, COL8_000000, s);
 		sheet_refresh(sht_win, 40, 28, 120, 44);
