@@ -152,21 +152,21 @@ unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
 
 
-#define PIT_CTRL 0x0043
-#define PIT_CNT0 0x0040
+// #define PIT_CTRL 0x0043
+// #define PIT_CNT0 0x0040
 
-void init_pit(void);
-void inthandler20(int *esp);
-struct TIMERCTL
-{
-	unsigned int count;
-	unsigned int timeout;
-	struct FIFO8 *fifo;
-	unsigned char data;
-};
+// void init_pit(void);
+// void inthandler20(int *esp);
+// struct TIMERCTL
+// {
+// 	unsigned int count;
+// 	unsigned int timeout;
+// 	struct FIFO8 *fifo;
+// 	unsigned char data;
+// };
+
+// void settimer(unsigned int timeout, struct FIFO8 *fifo, unsigned char data);
 extern struct TIMERCTL timerctl;
-
-void settimer(unsigned int timeout, struct FIFO8 *fifo, unsigned char data);
 
 
 #endif
