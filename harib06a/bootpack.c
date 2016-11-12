@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include "timer.h"
+// #include "timer.h"
 #include "bootpack.h"
 #include "sheet.h"
 
@@ -9,9 +9,10 @@
 void HariMain(void)
 {
 	struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO;
-	char s[40], keybuf[32], mousebuf[128];
+	struct FIFO8 timerfifo;
+	char s[40], keybuf[32], mousebuf[128], timerbuf[8];
 	int mx, my, i;
-	unsigned int memtotal, count = 0;
+	unsigned int memtotal;
 	struct MOUSE_DEC mdec;
 	struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
 	struct SHTCTL * shtctl;
@@ -24,9 +25,14 @@ void HariMain(void)
 	io_sti();  // IDT PIC 设置完成，CPU　中断开启
 	fifo8_init(&keyfifo, 32, keybuf);
 	fifo8_init(&mousefifo, 128, mousebuf);
+
 	init_pit();
-	io_out8(PIC0_IMR, 0xf8); // PIT PIC1 和键盘设置为许可
-	io_out8(PIC1_IMR, 0xef); 
+	io_out8(PIC0_IMR, 0xf8); /* PITとPIC1とキーボードを許可(11111000) */
+	io_out8(PIC1_IMR, 0xef); /* マウスを許可(11101111) */
+
+	fifo8_init(&timerfifo, 8, timerbuf);
+	settimer(500, &timerfifo, 1);
+
 	init_keyboard();
 	enable_mouse(&mdec);
 
@@ -86,7 +92,7 @@ void HariMain(void)
 		sheet_refresh(sht_win, 40, 28, 120, 44);
 
 		io_cli();
-		if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) == 0) {
+		if (fifo8_status(&keyfifo) + fifo8_status(&mousefifo) + fifo8_status(&timerfifo) == 0) {
 			io_sti();
 		} else {
 			if (fifo8_status(&keyfifo) != 0) {
@@ -127,7 +133,7 @@ void HariMain(void)
 						mx = binfo->scrnx - 1;
 					}
 					if (my > binfo->scrny - 1) {
-						my = binfo->scrny - 6;
+						my = binfo->scrny - 1;
 					}
 					sprintf(s, "(%3d, %3d)", mx, my);
 					boxfill8(buf_back, binfo->scrnx, COL8_008484, 0, 0, 79, 15); // 清除坐标
@@ -136,6 +142,15 @@ void HariMain(void)
 					// putblock8_8(binfo->vram, binfo->scrnx, 16, 16, mx, my, mcursor, 16); 
 					sheet_slide(sht_mouse, mx, my);
 				}
+			}
+			else if(fifo8_status(&timerfifo) != 0)
+			{
+				// 处理定时器中断
+				i = fifo8_get(&timerfifo);
+				sprintf(s, "1S(%3d)", timerctl.timeout);
+				io_sti();
+				putfonts8_asc(buf_back, binfo->scrnx, 0, 64, COL8_FFFFFF, s);
+				sheet_refresh(sht_back, 0, 64, 56, 80);
 			}
 		}
 	}
