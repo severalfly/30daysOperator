@@ -1,5 +1,7 @@
 #ifndef BOOTPACK_H_H_H
 #define BOOTPACK_H_H_H 
+
+#include "sheet.h"
 /* asmhead.nas */
 struct BOOTINFO { /* 0x0ff0-0x0fff */
 	char cyls; /* ƒu[ƒgƒZƒNƒ^‚Í‚Ç‚±‚Ü‚ÅƒfƒBƒXƒN‚ð“Ç‚ñ‚¾‚Ì‚© */
@@ -150,7 +152,7 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
 unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
-
+void putfont8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
 // #define PIT_CTRL 0x0043
 // #define PIT_CNT0 0x0040
