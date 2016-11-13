@@ -9,7 +9,7 @@
 void HariMain(void)
 {
 	struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO;
-	struct FIFO8 timerfifo, timerfifo2, timerfifo3;
+	struct FIFO8 timerfifo;
 	char s[40], keybuf[32], mousebuf[128], timerbuf[8], timerbuf2[8], timerbuf3[8];
 	struct TIMER *timer, *timer2, *timer3;
 	int mx, my, i;
@@ -36,12 +36,10 @@ void HariMain(void)
 	timer_init(timer, &timerfifo, 10);
 	timer_settime(timer, 1000);
 
-	fifo8_init(&timerfifo2, 8, timerbuf2);
 	timer2 = timer_alloc();
 	timer_init(timer2, &timerfifo, 3);
 	timer_settime(timer2, 300);
 
-	fifo8_init(&timerfifo3, 8, timerbuf3);
 	timer3 = timer_alloc();
 	timer_init(timer3, &timerfifo, 1);
 	timer_settime(timer3, 50);
