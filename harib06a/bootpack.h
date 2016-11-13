@@ -36,10 +36,19 @@ struct FIFO8 {
 	unsigned char *buf;
 	int p, q, size, free, flags;
 };
-void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf);
-int fifo8_put(struct FIFO8 *fifo, unsigned char data);
-int fifo8_get(struct FIFO8 *fifo);
-int fifo8_status(struct FIFO8 *fifo);
+struct FIFO32 {
+	int *buf;
+	int p, q, size, free, flags;
+};
+// void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf);
+// int fifo8_put(struct FIFO8 *fifo, unsigned char data);
+// int fifo8_get(struct FIFO8 *fifo);
+// int fifo8_status(struct FIFO8 *fifo);
+
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf);
+int fifo32_put(struct FIFO32 *fifo, int data);
+int fifo32_get(struct FIFO32 *fifo);
+int fifo32_status(struct FIFO32 *fifo);
 
 /* graphic.c */
 void init_palette(void);
@@ -109,10 +118,10 @@ void inthandler27(int *esp);
 #define PIC1_ICW4		0x00a1
 
 /* keyboard.c */
+extern struct FIFO32 *keyfifo;
 void inthandler21(int *esp);
 void wait_KBC_sendready(void);
-void init_keyboard(void);
-extern struct FIFO8 keyfifo;
+void init_keyboard(struct FIFO32 *fifo, int data0);
 #define PORT_KEYDAT		0x0060
 #define PORT_KEYCMD		0x0064
 
@@ -122,9 +131,9 @@ struct MOUSE_DEC {
 	int x, y, btn;
 };
 void inthandler2c(int *esp);
-void enable_mouse(struct MOUSE_DEC *mdec);
+void enable_mouse(struct FIFO32 *fifo, int data0, struct MOUSE_DEC *mdec);
 int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
-extern struct FIFO8 mousefifo;
+extern struct FIFO32 *mousefifo;
 
 #define MEMMAN_FREES 4090
 #define MEMMAN_ADDR 0x003c000
@@ -154,20 +163,7 @@ unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
 void putfont8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
-// #define PIT_CTRL 0x0043
-// #define PIT_CNT0 0x0040
 
-// void init_pit(void);
-// void inthandler20(int *esp);
-// struct TIMERCTL
-// {
-// 	unsigned int count;
-// 	unsigned int timeout;
-// 	struct FIFO8 *fifo;
-// 	unsigned char data;
-// };
-
-// void settimer(unsigned int timeout, struct FIFO8 *fifo, unsigned char data);
 extern struct TIMERCTL timerctl;
 
 
