@@ -11,6 +11,7 @@
 
 struct TIMER
 {
+	struct TIMER *next;// 保存下一个定时器地址
 	unsigned int timeout, flags;
 	struct FIFO32 *fifo;
 	unsigned char data;
@@ -18,9 +19,8 @@ struct TIMER
 struct TIMERCTL
 {
 	unsigned int count, next, using;
-	struct TIMER *timers[MAX_TIMER];
+	struct TIMER *t0;
 	struct TIMER timers0[MAX_TIMER];
-	// struct TIMER timer[MAX_TIMER];
 };
 void init_pit();
 void inthandler20(int *esp);
