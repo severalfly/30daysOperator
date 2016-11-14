@@ -1,6 +1,16 @@
 ; haribote-os boot asm
 ; TAB=4
 
+[INSTRSET "i486p"]
+
+VBEMODE	EQU		0x105			; 1024 x  768 x 8bitカラー
+; （画面モード一覧）
+;	0x100 :  640 x  400 x 8bitカラー
+;	0x101 :  640 x  480 x 8bitカラー
+;	0x103 :  800 x  600 x 8bitカラー
+;	0x105 : 1024 x  768 x 8bitカラー
+;	0x107 : 1280 x 1024 x 8bitカラー
+
 BOTPAK	EQU		0x00280000		; bootpackのロード先
 DSKCAC	EQU		0x00100000		; ディスクキャッシュの場所
 DSKCAC0	EQU		0x00008000		; ディスクキャッシュの場所（リアルモード）
@@ -17,6 +27,57 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 ; 画面モードを設定
 
+
+		;MOV		AL,0x13			; VGAグラフィックス、320x200x8bitカラー
+		;MOV		AH,0x00
+		MOV		AX,0x9000
+		MOV		ES,AX
+		MOV		DI,0
+		MOV		AX,0x4f00
+		INT		0x10
+		CMP		AX,0x004f
+		JNE		scrn320
+
+; VBEのバージョンチェック
+
+		MOV		AX,[ES:DI+4]
+		CMP		AX,0x0200
+		JB		scrn320			; if (AX < 0x0200) goto scrn320
+
+; 画面モード情報を得る
+
+		MOV		CX,VBEMODE
+		MOV		AX,0x4f01
+		INT		0x10
+		CMP		AX,0x004f
+		JNE		scrn320
+
+; 画面モード情報の確認
+
+		CMP		BYTE [ES:DI+0x19],8
+		JNE		scrn320
+		CMP		BYTE [ES:DI+0x1b],4
+		JNE		scrn320
+		MOV		AX,[ES:DI+0x00]
+		AND		AX,0x0080
+		JZ		scrn320			; モード属性のbit7が0だったのであきらめる
+
+; 画面モードの切り替え
+
+		MOV		BX,	0x4101
+		MOV		AX,	0x4f02
+		INT		0x10
+		MOV		BYTE [VMODE],8	; 画面モードをメモする（C言語が参照する）
+		MOV		AX,[ES:DI+0x12]
+		MOV		WORD [SCRNX],640
+		MOV		AX,[ES:DI+0x14]
+		MOV		WORD [SCRNY],480
+		MOV		DWORD [VRAM],0xe0000000
+		MOV		EAX,[ES:DI+0x28]
+		MOV		[VRAM],EAX
+		JMP		keystatus
+
+scrn320:
 		MOV		AL,0x13			; VGAグラフィックス、320x200x8bitカラー
 		MOV		AH,0x00
 		INT		0x10
@@ -27,6 +88,7 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 ; キーボードのLED状態をBIOSに教えてもらう
 
+keystatus:
 		MOV		AH,0x02
 		INT		0x16 			; keyboard BIOS
 		MOV		[LEDS],AL
