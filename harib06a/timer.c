@@ -6,17 +6,22 @@ struct TIMERCTL timerctl;
 void init_pit()
 {
 	int i;
+	struct TIMER *t;
 	io_out8(PIT_CTRL, 0x34);
 	io_out8(PIT_CNT0, 0x9c);// 与下面语句设置中断周期为11932，频率为100Hz
 	io_out8(PIT_CNT0, 0x2e);
 	timerctl.count = 0;
-	timerctl.next = 0xffffffff; // 因为最开始可能没有定时器
 
-	timerctl.using = 0;
 	for(i = 0; i < MAX_TIMER; i++)
 	{
 		timerctl.timers0[i].flags = 0; // 设置为还未使用
 	}
+	t = timer_alloc();
+	t->timeout = 0xffffffff;
+	t->flags = TIMER_FLAGS_USING;
+	t->next = 0;
+	timerctl.t0 = t;
+	timerctl.next = 0xffffffff; // 因为最开始可能没有定时器
 	return;
 }
 
@@ -54,14 +59,7 @@ void timer_settime(struct TIMER *timer, unsigned int timeout)
 	e = io_load_eflags();
 	io_cli();
 	timerctl.using ++;
-	if (timerctl.using == 1)
-	{
-		timerctl.t0 = timer;
-		timer->next = 0;// 设置为没有下一个
-		timerctl.next = timer->timeout;
-		io_store_eflags(e);
-		return;
-	}
+	
 	t = timerctl.t0;
 	if(timer->timeout <= t->timeout)
 	{
@@ -90,10 +88,6 @@ void timer_settime(struct TIMER *timer, unsigned int timeout)
 			return;
 		}
 	}
-	s->next = timer;
-	timer->next = 0;
-	io_store_eflags(e);
-	return;
 }
 
 /**
@@ -127,20 +121,9 @@ void inthandler20(int *esp)
 		// 这个for 循环中是没有使用到i 的，也就是说i 仅用来记数
 	}
 
-	// 正好有i 个定时器超时了，其他的进行移位
-	timerctl.using -= i;
-
 	// 新移位
 	timerctl.t0 = timer;
-	if(timerctl.using > 0)
-	{
-		timerctl.next = timerctl.t0->timeout;
-	}
-	else
-	{
-		timerctl.next = 0xffffffff;
-	}
-
+	timerctl.next = timerctl.t0->timeout;
 	return;
 }
 
