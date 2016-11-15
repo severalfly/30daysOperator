@@ -20,7 +20,7 @@ void HariMain(void)
 	struct SHTCTL * shtctl;
 	struct SHEET *sht_back, *sht_mouse, *sht_win;
 	unsigned char *buf_back, buf_mouse[256], *buf_win;
-	// test                
+	
 
 	init_gdtidt();
 	init_pic();
@@ -61,6 +61,8 @@ void HariMain(void)
 	buf_back = (unsigned char*)memman_alloc_4k(memman, binfo->scrnx*binfo->scrny);
 	buf_win = (unsigned char*)memman_alloc_4k(memman, 160 * 52);
 
+	int task_b_esp;
+	task_b_esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
 	sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);
 	sheet_setbuf(sht_mouse, buf_mouse, 16,16,99);
 	sheet_setbuf(sht_win, buf_win, 160,52,-1);
@@ -92,6 +94,35 @@ void HariMain(void)
 	sheet_refresh(sht_back, 0, 0 , binfo->scrnx, 48);
 
 	
+	struct TSS32 tss_a, tss_b;
+	tss_a.ldtr = 0;
+	tss_a.iomap = 0x40000000;
+	tss_b.ldtr = 0;
+	tss_b.iomap = 0x40000000;
+
+	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *)ADR_GDT;
+
+	set_segmdesc(gdt + 3, 103, (int)&tss_a, AR_TSS32);
+	set_segmdesc(gdt + 4, 103, (int)&tss_b, AR_TSS32);
+	load_tr(3*8);
+
+	tss_b.eip = (int)&task_b_main;
+	tss_b.eflags = 0x00000202;
+	tss_b.eax = 0;
+	tss_b.ecx = 0;
+	tss_b.edx = 0;
+	tss_b.ebx = 0;
+	tss_b.esp = task_b_esp;
+	tss_b.ebp = 0;
+	tss_b.esi = 0;
+	tss_b.edi = 0;
+	tss_b.es = 1 * 8;
+	tss_b.cs = 2 * 8;
+	tss_b.ss = 1 * 8;
+	tss_b.ds = 1 * 8;
+	tss_b.fs = 1 * 8;
+	tss_b.gs = 1 * 8;
+
 
 	for (;;) {
 
@@ -164,6 +195,7 @@ void HariMain(void)
 			else if(i == 10)
 			{
 				putfont8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[SEC]", 7);
+				taskswitch4(); // 切换任务，哈哈
 			}
 			else if (i == 3)
 			{
@@ -282,4 +314,11 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c)
 	boxfill8(sht->buf, sht->bxsize, c,           x0 - 1, y0 - 1, x1 + 0, y1 + 0);
 	return;
 }
+
+void task_b_main(void)
+{
+	for(;;){io_hlt();}
+}
+
+
 

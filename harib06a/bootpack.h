@@ -100,6 +100,7 @@ void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
 #define AR_DATA32_RW	0x4092
 #define AR_CODE32_ER	0x409a
 #define AR_INTGATE32	0x008e
+#define AR_TSS32		0x0089
 
 /* int.c */
 void init_pic(void);
@@ -176,6 +177,19 @@ static char keytable[0x54] = {
 		'2', '3', '0', '.'
 	};
 void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
+
+
+struct TSS32
+{
+	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, esp3, ss3, cr3;
+	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
+	int es, cs, ss, ds, fs, gs;
+	int ldtr, iomap;
+};
+
+void load_tr(int tr);
+void taskswitch4();
+void task_b_main(void);
 
 #endif
 
