@@ -24,12 +24,12 @@ void HariMain(void)
 
 	init_gdtidt();
 	init_pic();
+	struct TSS32 tss_a, tss_b;
+	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *)ADR_GDT;
 	io_sti();  // IDT PIC 设置完成，CPU　中断开启
-	// fifo8_init(&keyfifo, 32, keybuf);
-	// fifo8_init(&mousefifo, 128, mousebuf);
 
-	init_pit();
 	fifo32_init(&fifo, 128, fifobuf);
+	init_pit();
 	init_keyboard(&fifo, 256);
 	enable_mouse(&fifo, 512, &mdec);
 	io_out8(PIC0_IMR, 0xf8); /* PITとPIC1とキーボードを許可(11111000) */
@@ -37,7 +37,7 @@ void HariMain(void)
 
 	timer = timer_alloc();
 	timer_init(timer, &fifo, 10);
-	timer_settime(timer, 1000);
+	timer_settime(timer, 500);
 
 	timer2 = timer_alloc();
 	timer_init(timer2, &fifo, 3);
@@ -62,7 +62,6 @@ void HariMain(void)
 	buf_win = (unsigned char*)memman_alloc_4k(memman, 160 * 52);
 
 	int task_b_esp;
-	task_b_esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
 	sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);
 	sheet_setbuf(sht_mouse, buf_mouse, 16,16,99);
 	sheet_setbuf(sht_win, buf_win, 160,52,-1);
@@ -86,25 +85,22 @@ void HariMain(void)
 	sheet_updown(sht_win, 1);
 	sheet_updown(sht_mouse, 2);
 	sprintf(s, "(%3d, %3d)", mx, my);
-
-	putfonts8_asc(buf_back, binfo->scrnx, 0,0,COL8_FFFFFF, s);
-
-	sprintf(s, "memory %dMB free: %dKB",memman_total(memman)/ (1024*1024), memman_total(memman)/ 1024);
-	putfonts8_asc(buf_back, binfo->scrnx, 0, 32, COL8_FFFFFF, s);
-	sheet_refresh(sht_back, 0, 0 , binfo->scrnx, 48);
+	putfont8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
+	sprintf(s, "memory %dMB   free : %dKB",
+			memtotal / (1024 * 1024), memman_total(memman) / 1024);
+	putfont8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 
 	
-	struct TSS32 tss_a, tss_b;
 	tss_a.ldtr = 0;
 	tss_a.iomap = 0x40000000;
 	tss_b.ldtr = 0;
 	tss_b.iomap = 0x40000000;
 
-	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *)ADR_GDT;
 
 	set_segmdesc(gdt + 3, 103, (int)&tss_a, AR_TSS32);
 	set_segmdesc(gdt + 4, 103, (int)&tss_b, AR_TSS32);
 	load_tr(3*8);
+	task_b_esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
 
 	tss_b.eip = (int)&task_b_main;
 	tss_b.eflags = 0x00000202;
@@ -128,7 +124,7 @@ void HariMain(void)
 
 		io_cli();
 		if (fifo32_status(&fifo) == 0) {
-			io_sti();
+			io_stihlt();
 		} else {
 			i = fifo32_get(&fifo);
 			io_sti();
@@ -195,7 +191,7 @@ void HariMain(void)
 			else if(i == 10)
 			{
 				putfont8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[SEC]", 7);
-				taskswitch4(); // 切换任务，哈哈
+				taskswitch4(); // 切换任务，这里已经出问题了，应该是先执行上面的语句，会把10[SEC] 显示出来，然后切换任务。实际情况是：10[SEC] 未显示出来，程序就死了
 			}
 			else if (i == 3)
 			{
@@ -203,12 +199,12 @@ void HariMain(void)
 			}
 			else if(i <= 1)
 			{
-				if (i == 1)
+				if (i != 0)
 				{
 					timer_init(timer3, &fifo, 0);
 					cursor_c = COL8_000000;
 				}
-				else if(i == 0)
+				else
 				{
 					timer_init(timer3, &fifo, 1);
 					cursor_c = COL8_FFFFFF;
@@ -317,7 +313,36 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c)
 
 void task_b_main(void)
 {
-	for(;;){io_hlt();}
+			taskswitch3();
+			return;
+	struct FIFO32 fifo;
+	struct TIMER *timer;
+	int i, fifobuf[128];
+	int count = 0;
+	fifo32_init(&fifo, 128, fifobuf);
+	timer = timer_alloc();
+	timer_init(timer, &fifo, 1);
+	timer_settime(timer, 100);
+	for(;;){
+		count ++;
+		if (count > 1)
+		{
+		}
+		io_cli();
+		if(fifo32_status(&fifo) == 0)
+		{
+			io_sti();
+			io_hlt();
+		}
+		else{
+			i = fifo32_get(&fifo);
+			io_sti();
+			if(i <= 1)
+			{
+				taskswitch3();
+			}
+		}
+	}
 }
 
 

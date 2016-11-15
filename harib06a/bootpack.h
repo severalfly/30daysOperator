@@ -137,7 +137,7 @@ int mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
 extern struct FIFO32 *mousefifo;
 
 #define MEMMAN_FREES 4090
-#define MEMMAN_ADDR 0x003c000
+#define MEMMAN_ADDR 0x003c0000
 #define EFLAGS_AC_BIT 0x00040000
 #define CR0_CACHE_DISBALE 0x60000000
 struct FREEINFO
@@ -152,7 +152,7 @@ struct MEMMAN
 	struct FREEINFO free[MEMMAN_FREES];
 };
 
-// unsigned int memtest_sub(unsigned int start, unsigned int end);
+unsigned int memtest_sub(unsigned int start, unsigned int end);
 unsigned int memtest(unsigned int start, unsigned int end);
 void memman_init(struct MEMMAN *man);
 unsigned int memman_total(struct MEMMAN *man);
@@ -160,7 +160,7 @@ unsigned int memman_alloc(struct MEMMAN *man, unsigned int size);
 int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
-unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
+int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
 void putfont8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
@@ -188,6 +188,7 @@ struct TSS32
 };
 
 void load_tr(int tr);
+void taskswitch3();
 void taskswitch4();
 void task_b_main(void);
 

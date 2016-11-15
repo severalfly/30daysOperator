@@ -58,7 +58,7 @@ void timer_settime(struct TIMER *timer, unsigned int timeout)
 	timer->flags = TIMER_FLAGS_USING;
 	e = io_load_eflags();
 	io_cli();
-	timerctl.using ++;
+	
 	
 	t = timerctl.t0;
 	if(timer->timeout <= t->timeout)
@@ -76,10 +76,7 @@ void timer_settime(struct TIMER *timer, unsigned int timeout)
 	{
 		s = t;
 		t = t->next;
-		if(t == 0)
-		{
-			break;// 最后面了，不用处理啦，前面已经t=t->next
-		}
+
 		if(timer->timeout <= t->timeout)
 		{
 			s->next = timer;
@@ -105,8 +102,7 @@ void inthandler20(int *esp)
 		return;
 	}
 	timer = timerctl.t0;
-	int i;
-	for(i = 0; i < timerctl.using; i++)
+	for(;;)
 	{
 		// timers 的定时器处于动作中，所以不确认flags
 		if(timer->timeout > timerctl.count)
@@ -123,7 +119,7 @@ void inthandler20(int *esp)
 
 	// 新移位
 	timerctl.t0 = timer;
-	timerctl.next = timerctl.t0->timeout;
+	timerctl.next = timer->timeout;
 	return;
 }
 

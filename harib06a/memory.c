@@ -1,5 +1,36 @@
 #include "bootpack.h"
 
+unsigned int memtest(unsigned int start, unsigned int end)
+{
+	char flg486 = 0;
+	unsigned int eflag, cr0, i;
+	// 确认CPU 是386 还是486以上的
+	eflag = io_load_eflags();
+	eflag |= EFLAGS_AC_BIT;
+	io_store_eflags(eflag);
+	eflag = io_load_eflags();
+	if((eflag & EFLAGS_AC_BIT) != 0)
+	{
+		flg486 = 1;
+	}
+	eflag &= ~EFLAGS_AC_BIT;
+	io_store_eflags(eflag);
+	if(flg486 != 0)
+	{
+		cr0 = load_cr0();
+		cr0 |= CR0_CACHE_DISBALE; // 禁止缓存
+		store_cr0(cr0);
+	}
+	i = memtest_sub(start, end);
+
+	if(flg486 != 0)
+	{
+		cr0 = load_cr0();
+		cr0 &= ~CR0_CACHE_DISBALE;// 允许缓存
+		store_cr0(cr0);
+	}
+	return i;
+}
 void memman_init(struct MEMMAN *man)
 {
 	man->frees = 0;		// 可用信息数目
@@ -32,6 +63,7 @@ unsigned int memman_alloc(struct MEMMAN *man, unsigned int size)
 			man->free[i].size -= size;
 			if(man->free[i].size ==0)
 			{
+				man->frees--;
 				for(; i < man->frees; i++)
 				{
 					// man->free[i].addr = man->free[i+1].addr;
@@ -113,77 +145,20 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size)
 	return -1;
 }
 
-unsigned int memtest(unsigned int start, unsigned int end)
-{
-	char flg486 = 0;
-	unsigned int eflag, cr0, i;
-	// 确认CPU 是386 还是486以上的
-	eflag = io_load_eflags();
-	eflag |= EFLAGS_AC_BIT;
-	io_store_eflags(eflag);
-	eflag = io_load_eflags();
-	if((eflag & EFLAGS_AC_BIT) != 0)
-	{
-		flg486 = 1;
-	}
-	eflag &= ~EFLAGS_AC_BIT;
-	io_store_eflags(eflag);
-	if(flg486 != 0)
-	{
-		cr0 = load_cr0();
-		cr0 |= CR0_CACHE_DISBALE; // 禁止缓存
-		store_cr0(cr0);
-	}
-	i = memtest_sub(start, end);
 
-	if(flg486 != 0)
-	{
-		cr0 = load_cr0();
-		cr0 &= ~CR0_CACHE_DISBALE;// 允许缓存
-		store_cr0(cr0);
-	}
-	return i;
-}
-
-unsigned int memtest_sub(unsigned int start, unsigned int end)
-{
-	unsigned int i, *p, old, pat0 = 0xaa55aa55, pat1 = 0x55aa55aa;
-	for( i = start; i<= end; i+= 0x1000)
-	{
-		p = (unsigned int *) i;
-		old = *p;    // 先保存数据
-		*p = pat0;   // 尝试写入
-		
-		*p ^= 0xffffffff; // 异或反转
-		if(*p != pat1)       // 检查反转结果
-		{
-not_memory:
-			*p = old; // 出问题了，恢复数据，并退出
-			break;
-		}
-		*p ^= 0xffffffff;   // 再次反转
-		if( *p != pat0)        // 再次检查
-		{
-			goto not_memory;
-		}
-		*p = old; 		// 每一步都要恢复数据
-
-	}
-	return i;
-}
 
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size)
 {
 	unsigned int a;
-	size = (size + 0xfff) & 0xffffff000;
+	size = (size + 0xfff) & 0xfffff000;
 	a = memman_alloc(man, size);
 	return a;
 }
 
-unsigned int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size)
+int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size)
 {
-	unsigned int i;
-	size = (size + 0xfff) & 0xffffff000;
+	int i;
+	size = (size + 0xfff) & 0xfffff000;
 	i = memman_free(man, addr, size);
 	return i;
 }
