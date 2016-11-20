@@ -1,10 +1,10 @@
 ; naskfunc
 ; TAB=4
 
-[FORMAT "WCOFF"]				; ƒIƒuƒWƒFƒNƒgƒtƒ@ƒCƒ‹‚ðì‚éƒ‚[ƒh	
-[INSTRSET "i486p"]				; 486‚Ì–½—ß‚Ü‚ÅŽg‚¢‚½‚¢‚Æ‚¢‚¤‹Lq
-[BITS 32]						; 32ƒrƒbƒgƒ‚[ƒh—p‚Ì‹@ŠBŒê‚ðì‚ç‚¹‚é
-[FILE "naskfunc.nas"]			; ƒ\[ƒXƒtƒ@ƒCƒ‹–¼î•ñ
+[FORMAT "WCOFF"]				; オブジェクトファイルを作るモード	
+[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
+[BITS 32]						; 32ビットモード用の機械語を作らせる
+[FILE "naskfunc.nas"]			; ソースファイル名情報
 
 		GLOBAL	_io_hlt, _io_cli, _io_sti, _io_stihlt
 		GLOBAL	_io_in8,  _io_in16,  _io_in32
@@ -75,14 +75,14 @@ _io_out32:	; void io_out32(int port, int data);
 		RET
 
 _io_load_eflags:	; int io_load_eflags(void);
-		PUSHFD		; PUSH EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+		PUSHFD		; PUSH EFLAGS という意味
 		POP		EAX
 		RET
 
 _io_store_eflags:	; void io_store_eflags(int eflags);
 		MOV		EAX,[ESP+4]
 		PUSH	EAX
-		POPFD		; POP EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+		POPFD		; POP EFLAGS という意味
 		RET
 
 _load_gdtr:		; void load_gdtr(int limit, int addr);
@@ -174,40 +174,37 @@ _asm_inthandler2c:
 		POP		ES
 		IRETD
 
-
-; 以下为memtest_sub 实现代码，因为编译器会自动优化，所以此检查内存代码只能使用汇编语言写，此处拒绝优化
-_memtest_sub:	; unsigined int memtest_sub(unsigned int start, unsigned int end)
-		PUSH EDI
-		PUSH ESI
-		PUSH EBX
-		MOV ESI, 0xaa55aa55
-		MOV EDI, 0x55aa55aa
-		MOV EAX,[ESP+12+4] ; i = start
+_memtest_sub:	; unsigned int memtest_sub(unsigned int start, unsigned int end)
+		PUSH	EDI						; （EBX, ESI, EDI も使いたいので）
+		PUSH	ESI
+		PUSH	EBX
+		MOV		ESI,0xaa55aa55			; pat0 = 0xaa55aa55;
+		MOV		EDI,0x55aa55aa			; pat1 = 0x55aa55aa;
+		MOV		EAX,[ESP+12+4]			; i = start;
 mts_loop:
-		MOV 		EBX, EAX
-		ADD 		EBX, 0xffc
-		MOV		EDX, [EBX]
-		MOV		[EBX], ESI
-		XOR		DWORD [EBX], 0xffffffff
-		CMP		EDI, [EBX]
+		MOV		EBX,EAX
+		ADD		EBX,0xffc				; p = i + 0xffc;
+		MOV		EDX,[EBX]				; old = *p;
+		MOV		[EBX],ESI				; *p = pat0;
+		XOR		DWORD [EBX],0xffffffff	; *p ^= 0xffffffff;
+		CMP		EDI,[EBX]				; if (*p != pat1) goto fin;
 		JNE		mts_fin
-		XOR		DWORD [EBX], 0xffffffff
-		CMP		ESI, [EBX]
+		XOR		DWORD [EBX],0xffffffff	; *p ^= 0xffffffff;
+		CMP		ESI,[EBX]				; if (*p != pat0) goto fin;
 		JNE		mts_fin
-		MOV		[EBX], EDX
-		ADD 		EAX, 0x1000
-		CMP		EAX, [ESP + 12 +8]
-
-		JBE 		mts_loop
-		POP 		EBX
-		POP 		ESI
-		POP 		EDI
+		MOV		[EBX],EDX				; *p = old;
+		ADD		EAX,0x1000				; i += 0x1000;
+		CMP		EAX,[ESP+12+8]			; if (i <= end) goto mts_loop;
+		JBE		mts_loop
+		POP		EBX
+		POP		ESI
+		POP		EDI
 		RET
 mts_fin:
-		MOV 		[EBX], EDX
-		POP 		EBX
-		POP 		ESI
-		POP 		EDI
+		MOV		[EBX],EDX				; *p = old;
+		POP		EBX
+		POP		ESI
+		POP		EDI
 		RET
 
 _taskswitch3:	; void taskswitch3(void);
@@ -217,5 +214,3 @@ _taskswitch3:	; void taskswitch3(void);
 _taskswitch4:	; void taskswitch4(void);
 		JMP		4*8:0
 		RET
-
-

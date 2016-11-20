@@ -86,10 +86,10 @@ void HariMain(void)
 	sheet_updown(sht_win, 1);
 	sheet_updown(sht_mouse, 2);
 	sprintf(s, "(%3d, %3d)", mx, my);
-	putfonts8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
+	putfont8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 	sprintf(s, "memory %dMB   free : %dKB",
 			memtotal / (1024 * 1024), memman_total(memman) / 1024);
-	putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
+	putfont8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 
 	
 	tss_a.ldtr = 0;
@@ -132,20 +132,20 @@ void HariMain(void)
 			if (i >= 256 && i < 512) {
 				// 键盘数据
 				sprintf(s, "%02X", i - 256);
-				putfonts8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
+				putfont8_asc_sht(sht_back, 0, 16, COL8_FFFFFF, COL8_008484, s, 2);
 				if(i < 256 + 0x54)
 				{
 					if(keytable[i-256] != 0 && cursor_x < 144) // 一般字符
 					{
 						s[0] = keytable[i - 256];
 						s[1] = 0;
-						putfonts8_asc_sht(sht_win, cursor_x, 28, COL8_000000, COL8_C6C6C6, s, 1);
+						putfont8_asc_sht(sht_win, cursor_x, 28, COL8_000000, COL8_C6C6C6, s, 1);
 						cursor_x += 8;
 					}
 				}
 				if (i == 256 + 0x0e && cursor_x > 8) // backspace
 				{
-					putfonts8_asc_sht(sht_win, cursor_x, 28, COL8_000000, COL8_FFFFFF, " ", 1);
+					putfont8_asc_sht(sht_win, cursor_x, 28, COL8_000000, COL8_FFFFFF, " ", 1);
 					cursor_x -= 8;
 				}
 				boxfill8(sht_win->buf, sht_win->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);
@@ -164,7 +164,7 @@ void HariMain(void)
 					if ((mdec.btn & 0x04) != 0) {
 						s[2] = 'C';
 					}
-					putfonts8_asc_sht(sht_back, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
+					putfont8_asc_sht(sht_back, 32, 16, COL8_FFFFFF, COL8_008484, s, 15);
 					mx += mdec.x;
 					my += mdec.y;
 					if (mx < 0) {
@@ -180,7 +180,7 @@ void HariMain(void)
 						my = binfo->scrny - 1;
 					}
 					sprintf(s, "(%3d, %3d)", mx, my);
-					putfonts8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 12);
+					putfont8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 12);
 					sheet_slide(sht_mouse, mx, my);
 					if (mdec.btn & 0x01 != 0)
 					{
@@ -191,12 +191,12 @@ void HariMain(void)
 			}
 			else if(i == 10)
 			{
-				putfonts8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[SEC]", 7);
+				putfont8_asc_sht(sht_back, 0, 64, COL8_FFFFFF, COL8_008484, "10[SEC]", 7);
 				taskswitch4(); // 切换任务，这里已经出问题了，应该是先执行上面的语句，会把10[SEC] 显示出来，然后切换任务。实际情况是：10[SEC] 未显示出来，程序就死了
 			}
 			else if (i == 3)
 			{
-				putfonts8_asc_sht(sht_back, 0, 80, COL8_FFFFFF, COL8_008484, "3[SEC]", 6);
+				putfont8_asc_sht(sht_back, 0, 80, COL8_FFFFFF, COL8_008484, "3[SEC]", 6);
 			}
 			else if(i <= 1)
 			{
@@ -288,7 +288,7 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title)
  * @param s   字符串（string）
  * @param l   字符串（length)
  */
-void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l)
+void putfont8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l)
 {
 	boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * 8 -1, y + 15);
 	putfonts8_asc(sht->buf, sht->bxsize, x, y, c, s);
@@ -317,7 +317,7 @@ void task_b_main(void)
 	struct FIFO32 fifo;
 	struct TIMER *timer;
 	int i, fifobuf[128];
-
+	int count = 0;
 	fifo32_init(&fifo, 128, fifobuf);
 	timer = timer_alloc();
 	timer_init(timer, &fifo, 1);

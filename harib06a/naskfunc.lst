@@ -1,10 +1,10 @@
      1 00000000                                 ; naskfunc
      2 00000000                                 ; TAB=4
      3 00000000                                 
-     4 00000000                                 [FORMAT "WCOFF"]				; ƒIƒuƒWƒFƒNƒgƒtƒ@ƒCƒ‹‚ðì‚éƒ‚[ƒh	
-     5 00000000                                 [INSTRSET "i486p"]				; 486‚Ì–½—ß‚Ü‚ÅŽg‚¢‚½‚¢‚Æ‚¢‚¤‹Lq
-     6 00000000                                 [BITS 32]						; 32ƒrƒbƒgƒ‚[ƒh—p‚Ì‹@ŠBŒê‚ðì‚ç‚¹‚é
-     7 00000000                                 [FILE "naskfunc.nas"]			; ƒ\[ƒXƒtƒ@ƒCƒ‹–¼î•ñ
+     4 00000000                                 [FORMAT "WCOFF"]				; オブジェクトファイルを作るモード	
+     5 00000000                                 [INSTRSET "i486p"]				; 486の命令まで使いたいという記述
+     6 00000000                                 [BITS 32]						; 32ビットモード用の機械語を作らせる
+     7 00000000                                 [FILE "naskfunc.nas"]			; ソースファイル名情報
      8 00000000                                 
      9 00000000                                 		GLOBAL	_io_hlt, _io_cli, _io_sti, _io_stihlt
     10 00000000                                 		GLOBAL	_io_in8,  _io_in16,  _io_in32
@@ -75,14 +75,14 @@
     75 00000044 C3                              		RET
     76 00000045                                 
     77 00000045                                 _io_load_eflags:	; int io_load_eflags(void);
-    78 00000045 9C                              		PUSHFD		; PUSH EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+    78 00000045 9C                              		PUSHFD		; PUSH EFLAGS という意味
     79 00000046 58                              		POP		EAX
     80 00000047 C3                              		RET
     81 00000048                                 
     82 00000048                                 _io_store_eflags:	; void io_store_eflags(int eflags);
     83 00000048 8B 44 24 04                     		MOV		EAX,[ESP+4]
     84 0000004C 50                              		PUSH	EAX
-    85 0000004D 9D                              		POPFD		; POP EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+    85 0000004D 9D                              		POPFD		; POP EFLAGS という意味
     86 0000004E C3                              		RET
     87 0000004F                                 
     88 0000004F                                 _load_gdtr:		; void load_gdtr(int limit, int addr);
@@ -174,48 +174,43 @@
    174 000000DB 07                              		POP		ES
    175 000000DC CF                              		IRETD
    176 000000DD                                 
-   177 000000DD                                 
-   178 000000DD                                 ; 以下为memtest_sub 实现代码，因为编译器会自动优化，所以此检查内存代码只能使用汇编语言写，此处拒绝优化
-   179 000000DD                                 _memtest_sub:	; unsigined int memtest_sub(unsigned int start, unsigned int end)
-   180 000000DD 57                              		PUSH EDI
-   181 000000DE 56                              		PUSH ESI
-   182 000000DF 53                              		PUSH EBX
-   183 000000E0 BE AA55AA55                     		MOV ESI, 0xaa55aa55
-   184 000000E5 BF 55AA55AA                     		MOV EDI, 0x55aa55aa
-   185 000000EA 8B 44 24 10                     		MOV EAX,[ESP+12+4] ; i = start
-   186 000000EE                                 mts_loop:
-   187 000000EE 89 C3                           		MOV 		EBX, EAX
-   188 000000F0 81 C3 00000FFC                  		ADD 		EBX, 0xffc
-   189 000000F6 8B 13                           		MOV		EDX, [EBX]
-   190 000000F8 89 33                           		MOV		[EBX], ESI
-   191 000000FA 83 33 FF                        		XOR		DWORD [EBX], 0xffffffff
-   192 000000FD 3B 3B                           		CMP		EDI, [EBX]
-   193 000000FF 75 18                           		JNE		mts_fin
-   194 00000101 83 33 FF                        		XOR		DWORD [EBX], 0xffffffff
-   195 00000104 3B 33                           		CMP		ESI, [EBX]
-   196 00000106 75 11                           		JNE		mts_fin
-   197 00000108 89 13                           		MOV		[EBX], EDX
-   198 0000010A 05 00001000                     		ADD 		EAX, 0x1000
-   199 0000010F 3B 44 24 14                     		CMP		EAX, [ESP + 12 +8]
-   200 00000113                                 
-   201 00000113 76 D9                           		JBE 		mts_loop
-   202 00000115 5B                              		POP 		EBX
-   203 00000116 5E                              		POP 		ESI
-   204 00000117 5F                              		POP 		EDI
-   205 00000118 C3                              		RET
-   206 00000119                                 mts_fin:
-   207 00000119 89 13                           		MOV 		[EBX], EDX
-   208 0000011B 5B                              		POP 		EBX
-   209 0000011C 5E                              		POP 		ESI
-   210 0000011D 5F                              		POP 		EDI
-   211 0000011E C3                              		RET
-   212 0000011F                                 
-   213 0000011F                                 _taskswitch3:	; void taskswitch3(void);
-   214 0000011F EA 00000000 0018                		JMP		3*8:0
-   215 00000126 C3                              		RET
-   216 00000127                                 
-   217 00000127                                 _taskswitch4:	; void taskswitch4(void);
-   218 00000127 EA 00000000 0020                		JMP		4*8:0
-   219 0000012E C3                              		RET
-   220 0000012F                                 
-   221 0000012F                                 
+   177 000000DD                                 _memtest_sub:	; unsigned int memtest_sub(unsigned int start, unsigned int end)
+   178 000000DD 57                              		PUSH	EDI						; （EBX, ESI, EDI も使いたいので）
+   179 000000DE 56                              		PUSH	ESI
+   180 000000DF 53                              		PUSH	EBX
+   181 000000E0 BE AA55AA55                     		MOV		ESI,0xaa55aa55			; pat0 = 0xaa55aa55;
+   182 000000E5 BF 55AA55AA                     		MOV		EDI,0x55aa55aa			; pat1 = 0x55aa55aa;
+   183 000000EA 8B 44 24 10                     		MOV		EAX,[ESP+12+4]			; i = start;
+   184 000000EE                                 mts_loop:
+   185 000000EE 89 C3                           		MOV		EBX,EAX
+   186 000000F0 81 C3 00000FFC                  		ADD		EBX,0xffc				; p = i + 0xffc;
+   187 000000F6 8B 13                           		MOV		EDX,[EBX]				; old = *p;
+   188 000000F8 89 33                           		MOV		[EBX],ESI				; *p = pat0;
+   189 000000FA 83 33 FF                        		XOR		DWORD [EBX],0xffffffff	; *p ^= 0xffffffff;
+   190 000000FD 3B 3B                           		CMP		EDI,[EBX]				; if (*p != pat1) goto fin;
+   191 000000FF 75 18                           		JNE		mts_fin
+   192 00000101 83 33 FF                        		XOR		DWORD [EBX],0xffffffff	; *p ^= 0xffffffff;
+   193 00000104 3B 33                           		CMP		ESI,[EBX]				; if (*p != pat0) goto fin;
+   194 00000106 75 11                           		JNE		mts_fin
+   195 00000108 89 13                           		MOV		[EBX],EDX				; *p = old;
+   196 0000010A 05 00001000                     		ADD		EAX,0x1000				; i += 0x1000;
+   197 0000010F 3B 44 24 14                     		CMP		EAX,[ESP+12+8]			; if (i <= end) goto mts_loop;
+   198 00000113 76 D9                           		JBE		mts_loop
+   199 00000115 5B                              		POP		EBX
+   200 00000116 5E                              		POP		ESI
+   201 00000117 5F                              		POP		EDI
+   202 00000118 C3                              		RET
+   203 00000119                                 mts_fin:
+   204 00000119 89 13                           		MOV		[EBX],EDX				; *p = old;
+   205 0000011B 5B                              		POP		EBX
+   206 0000011C 5E                              		POP		ESI
+   207 0000011D 5F                              		POP		EDI
+   208 0000011E C3                              		RET
+   209 0000011F                                 
+   210 0000011F                                 _taskswitch3:	; void taskswitch3(void);
+   211 0000011F EA 00000000 0018                		JMP		3*8:0
+   212 00000126 C3                              		RET
+   213 00000127                                 
+   214 00000127                                 _taskswitch4:	; void taskswitch4(void);
+   215 00000127 EA 00000000 0020                		JMP		4*8:0
+   216 0000012E C3                              		RET

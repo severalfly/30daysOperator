@@ -25,11 +25,8 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 		ORG		0xc200			; このプログラムがどこに読み込まれるのか
 
-; 画面モードを設定
+; VBE存在確認
 
-
-		;MOV		AL,0x13			; VGAグラフィックス、320x200x8bitカラー
-		;MOV		AH,0x00
 		MOV		AX,0x9000
 		MOV		ES,AX
 		MOV		DI,0
@@ -64,15 +61,14 @@ VRAM	EQU		0x0ff8			; グラフィックバッファの開始番地
 
 ; 画面モードの切り替え
 
-		MOV		BX,	0x4101
-		MOV		AX,	0x4f02
+		MOV		BX,VBEMODE+0x4000
+		MOV		AX,0x4f02
 		INT		0x10
 		MOV		BYTE [VMODE],8	; 画面モードをメモする（C言語が参照する）
 		MOV		AX,[ES:DI+0x12]
-		MOV		WORD [SCRNX],640
+		MOV		[SCRNX],AX
 		MOV		AX,[ES:DI+0x14]
-		MOV		WORD [SCRNY],480
-		MOV		DWORD [VRAM],0xe0000000
+		MOV		[SCRNY],AX
 		MOV		EAX,[ES:DI+0x28]
 		MOV		[VRAM],EAX
 		JMP		keystatus
@@ -116,8 +112,6 @@ keystatus:
 		CALL	waitkbdout
 
 ; プロテクトモード移行
-
-[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 
 		LGDT	[GDTR0]			; 暫定GDTを設定
 		MOV		EAX,CR0

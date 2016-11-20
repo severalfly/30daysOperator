@@ -32,18 +32,12 @@ void asm_inthandler27(void);
 void asm_inthandler2c(void);
 
 /* fifo.c */
-struct FIFO8 {
-	unsigned char *buf;
-	int p, q, size, free, flags;
-};
+
 struct FIFO32 {
 	int *buf;
 	int p, q, size, free, flags;
 };
-// void fifo8_init(struct FIFO8 *fifo, int size, unsigned char *buf);
-// int fifo8_put(struct FIFO8 *fifo, unsigned char data);
-// int fifo8_get(struct FIFO8 *fifo);
-// int fifo8_status(struct FIFO8 *fifo);
+
 
 void fifo32_init(struct FIFO32 *fifo, int size, int *buf);
 int fifo32_put(struct FIFO32 *fifo, int data);
@@ -162,7 +156,7 @@ int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
 unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
 int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title);
-void putfont8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
+void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
 
 
 extern struct TIMERCTL timerctl;
