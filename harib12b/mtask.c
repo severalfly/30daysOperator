@@ -13,31 +13,34 @@ void mt_init(void)
 	return;
 }
 
-void mt_taskswitch(void)
-{
-	if (mt_tr == 3 * 8)
-	{
-		mt_tr = 4 * 8;
-	}
-	else
-	{
-		mt_tr = 3 * 8;
-	}
-	timer_settime(mt_timer, 2);
-	farjmp(0, mt_tr);
-	return;
-}
+// void mt_taskswitch(void)
+// {
+// 	if (mt_tr == 3 * 8)
+// 	{
+// 		mt_tr = 4 * 8;
+// 	}
+// 	else
+// 	{
+// 		mt_tr = 3 * 8;
+// 	}
+// 	timer_settime(mt_timer, 2);
+// 	farjmp(0, mt_tr);
+// 	return;
+// }
 
 void task_switch(void)
 {
-	timer_settime(task_timer, 2);
+	struct TASK *task;
+	taskctl->now ++;
+	if(taskctl->now == taskctl->running)
+	{
+		taskctl->now = 0;
+	}
+	task = taskctl->tasks[taskctl->now];
+	timer_settime(task_timer, task->priority);
 	if(taskctl->running >= 2)
 	{
-		taskctl->now ++;
-		if(taskctl->now == taskctl->running){
-			taskctl->now = 0;
-		}
-		farjmp(0, taskctl->tasks[taskctl->now]->sel);
+		farjmp(0, task->sel);
 	}
 	return;
 }
@@ -59,6 +62,7 @@ struct TASK *task_init(struct MEMMAN *memman)
 	}
 	task = task_alloc();
 	task->flags = 2; // 活动中的标志
+	task->priority = 2; // 0.02 秒
 	taskctl->running = 1;
 	taskctl->now = 0;
 	taskctl->tasks[0] = task;
@@ -98,7 +102,11 @@ struct TASK *task_alloc(void){
 }
 
 
-void task_run(struct TASK *task){
+void task_run(struct TASK *task, int priority){
+	if (priority > 0)
+	{
+		task->priority = priority;
+	}
 	task->flags = 2;
 	taskctl->tasks[taskctl->running] = task;
 	taskctl->running ++;

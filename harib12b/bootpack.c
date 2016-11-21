@@ -83,7 +83,7 @@ void HariMain(void)
 		task_b[i]->tss.fs = 1 * 8;
 		task_b[i]->tss.gs = 1 * 8;
 		*((int *)(task_b[i]->tss.esp + 4)) = (int)sht_win_b[i];
-		task_run(task_b[i]);
+		task_run(task_b[i], i+1);
 	}
 
 
@@ -100,10 +100,7 @@ void HariMain(void)
 	timer = timer_alloc();
 	timer_init(timer, &fifo, 1);
 	timer_settime(timer, 50);
-	/*timer3 = timer_alloc();
-	timer_init(timer3, &fifo, 1);
-	timer_settime(timer3, 50);
-	*/
+
 	// sht_mouse
 	sht_mouse = sheet_alloc(shtctl);
 	sheet_setbuf(sht_mouse, buf_mouse, 16, 16, 99);
@@ -131,18 +128,7 @@ void HariMain(void)
 	putfonts8_asc_sht(sht_back, 0, 32, COL8_FFFFFF, COL8_008484, s, 40);
 
 
-	/*task_b = task_alloc();
-	task_b->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
-	task_b->tss.eip = (int) &task_b_main;
-	task_b->tss.es = 1 * 8;
-	task_b->tss.cs = 2 * 8;
-	task_b->tss.ss = 1 * 8;
-	task_b->tss.ds = 1 * 8;
-	task_b->tss.fs = 1 * 8;
-	task_b->tss.gs = 1 * 8;
-	*((int *) (task_b->tss.esp + 4)) = (int) sht_back;
-	task_run(task_b);
-*/
+
 	for (;;) {
 		io_cli();
 		if (fifo32_status(&fifo) == 0) {
