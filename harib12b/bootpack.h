@@ -28,8 +28,7 @@ void asm_inthandler21(void);
 void asm_inthandler27(void);
 void asm_inthandler2c(void);
 unsigned int memtest_sub(unsigned int start, unsigned int end);
-void taskswitch3(void);
-void taskswitch4(void);
+void farjmp(int eip, int cs);
 
 /* fifo.c */
 struct FIFO32 {
@@ -185,16 +184,9 @@ void timer_init(struct TIMER *timer, struct FIFO32 *fifo, int data);
 void timer_settime(struct TIMER *timer, unsigned int timeout);
 void inthandler20(int *esp);
 
-void farjmp(int eip, int cs);
-
-// mt_task
-extern struct TIMER *mt_timer;
-extern struct TIMER *task_timer;
-void mt_init(void);
-void mt_taskswitch(void);
-
-#define MAX_TASKS 1000
-#define TASK_GDT0 3
+/* mtask.c */
+#define MAX_TASKS		1000	/* 最大タスク数 */
+#define TASK_GDT0		3		/* TSSをGDTの何番から割り当てるのか */
 struct TSS32 {
 	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
 	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
@@ -214,7 +206,7 @@ struct TASKCTL
 	struct TASK *tasks[MAX_TASKS];
 	struct TASK tasks0[MAX_TASKS];
 };
-
+extern struct TIMER *task_timer;
 struct TASK *task_init(struct MEMMAN *memman);
 struct TASK *task_alloc(void);
 void task_run(struct TASK *task);
