@@ -24,10 +24,6 @@ void HariMain(void)
 	struct MOUSE_DEC mdec;
 	struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
 	struct SHTCTL *shtctl;
-	unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_win_b;
-	struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_win_b[3];
-	struct TASK *task_a, *task_b[3];
-	struct TIMER *timer;
 	static char keytable[0x54] = {
 		0,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0,   0,
 		'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', '@', '[', 0,   0,   'A', 'S',
@@ -36,6 +32,10 @@ void HariMain(void)
 		0,   0,   0,   0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6', '+', '1',
 		'2', '3', '0', '.'
 	};
+	unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_win_b;
+	struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_win_b[3];
+	struct TASK *task_a, *task_b[3];
+	struct TIMER *timer;
 
 	init_gdtidt();
 	init_pic();
@@ -58,6 +58,7 @@ void HariMain(void)
 	shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny);
 	task_a = task_init(memman);
 	fifo.task = task_a;
+	task_run(task_a, 1, 0);
 
 	// sht_back
 	sht_back  = sheet_alloc(shtctl);
@@ -83,7 +84,7 @@ void HariMain(void)
 		task_b[i]->tss.fs = 1 * 8;
 		task_b[i]->tss.gs = 1 * 8;
 		*((int *)(task_b[i]->tss.esp + 4)) = (int)sht_win_b[i];
-		task_run(task_b[i], i+1);
+		task_run(task_b[i],2, i+1);
 	}
 
 
@@ -212,17 +213,6 @@ void HariMain(void)
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act)
 {
-	char c, tc, tbc;
-	if(act != 0)
-	{
-		tc = COL8_FFFFFF;
-		tbc = COL8_000084;
-	}
-	else
-	{
-		tc = COL8_C6C6C6;
-		tbc = COL8_848484;
-	}
 	static char closebtn[14][16] = {
 		"OOOOOOOOOOOOOOO@",
 		"OQQQQQQQQQQQQQ$@",
@@ -240,6 +230,14 @@ void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char ac
 		"@@@@@@@@@@@@@@@@"
 	};
 	int x, y;
+	char c, tc, tbc;
+	if (act != 0) {
+		tc = COL8_FFFFFF;
+		tbc = COL8_000084;
+	} else {
+		tc = COL8_C6C6C6;
+		tbc = COL8_848484;
+	}
 	boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         xsize - 1, 0        );
 	boxfill8(buf, xsize, COL8_FFFFFF, 1,         1,         xsize - 2, 1        );
 	boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         0,         ysize - 1);
