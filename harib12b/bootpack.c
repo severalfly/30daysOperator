@@ -12,6 +12,7 @@ void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
 
 
 void task_b_main(struct SHEET *sht_back);
+void console_task(struct SHEET *sheet);
 
 void HariMain(void)
 {
@@ -32,9 +33,9 @@ void HariMain(void)
 		0,   0,   0,   0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6', '+', '1',
 		'2', '3', '0', '.'
 	};
-	unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_win_b;
-	struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_win_b[3];
-	struct TASK *task_a, *task_b[3];
+	unsigned char *buf_back, buf_mouse[256], *buf_win, *buf_win_b, *buf_cons;
+	struct SHEET *sht_back, *sht_mouse, *sht_win, *sht_win_b[3], *sht_cons;
+	struct TASK *task_a, *task_b[3], *task_cons;
 	struct TIMER *timer;
 
 	init_gdtidt();
@@ -87,6 +88,22 @@ void HariMain(void)
 		task_run(task_b[i],2, i+1);
 	}
 
+	sht_cons = sheet_alloc(shtctl);
+	buf_cons = (unsigned char *)memman_alloc_4k(memman, 256 * 165);
+	sheet_setbuf(sht_cons, buf_cons, 256, 165, -1); // 设置为无透明色
+	make_window8(buf_cons, 256, 165, "console", 0);
+	make_textbox8(sht_cons, 8, 28, 240, 128, COL8_000000);
+	task_cons = task_alloc();
+	task_cons->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 *1024 -8;
+	task_cons->tss.eip = (int)&console_task;
+	task_cons->tss.es = 1 * 8;
+	task_cons->tss.cs = 2 * 8;
+	task_cons->tss.ss = 1 * 8;
+	task_cons->tss.ds = 1 * 8;
+	task_cons->tss.fs = 1 * 8;
+	task_cons->tss.gs = 1 * 8;
+	*((int *)(task_cons->tss.esp + 4)) = (int)sht_cons;
+	task_run(task_cons, 2, 2); 
 
 	// sht_win
 	sht_win   = sheet_alloc(shtctl);
@@ -111,17 +128,13 @@ void HariMain(void)
 
 
 	sheet_slide(sht_back, 0, 0);
-	sheet_slide(sht_win_b[0], 168, 56);
-	sheet_slide(sht_win_b[1], 8, 116);
-	sheet_slide(sht_win_b[2], 168, 116);
-	sheet_slide(sht_win, 8, 56);
+	sheet_slide(sht_cons, 32, 4);
+	sheet_slide(sht_win, 64, 56);
 	sheet_slide(sht_mouse, mx, my);
 	sheet_updown(sht_back,  0);
-	sheet_updown(sht_win_b[0], 1);
-	sheet_updown(sht_win_b[1], 2);
-	sheet_updown(sht_win_b[2], 3);
-	sheet_updown(sht_win,   4);
-	sheet_updown(sht_mouse, 5);
+	sheet_updown(sht_cons, 1);
+	sheet_updown(sht_win, 2);
+	sheet_updown(sht_mouse, 3);
 	sprintf(s, "(%3d, %3d)", mx, my);
 	putfonts8_asc_sht(sht_back, 0, 0, COL8_FFFFFF, COL8_008484, s, 10);
 	sprintf(s, "memory %dMB   free : %dKB",
@@ -322,3 +335,49 @@ void task_b_main(struct SHEET *sht_win_b)
 		}
 	}
 }
+
+void console_task(struct SHEET *sheet)
+{
+	struct FIFO32 fifo;
+	struct TIMER *timer;
+	struct TASK *task = task_now();
+
+	int i, fifobuf[128], cursor_x = 8, cursor_c = COL8_000000;
+	fifo32_init(&fifo, 128, fifobuf, task);
+	timer = task_alloc();
+	timer_init(timer, &fifo, 1);
+	timer_settime(timer, 50);
+	for(;;)
+	{
+		io_cli;
+		if (fifo32_status(&fifo) == 0)
+		{
+			task_sleep(task);
+			io_sti();
+		}
+		else
+		{
+			i = fifo32_get(&fifo);
+			io_sti();
+			if (i <= 1)
+			{
+				// 光标用定时器
+				if (i != 0)
+				{
+					timer_init(timer, &fifo, 0);
+					cursor_c = COL8_FFFFFF;
+				}
+				else
+				{
+					timer_init(timer, &fifo, 1);
+					cursor_c = COL8_000000;
+				}
+				timer_settime(timer, 50);
+				boxfill8(sheet->buf, sheet->bxsize, cursor_c, cursor_x, 28, cursor_x + 7, 43);
+				sheet_refresh(sheet, cursor_x, 28, cursor_x + 8, 44);
+			}
+		}
+	}
+}
+
+
