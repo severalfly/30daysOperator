@@ -2,6 +2,7 @@
 
 #include "bootpack.h"
 #include <stdio.h>
+#include <string.h>
 
 void make_window8(unsigned char *buf, int xsize, int ysize, char *title, char act);
 void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
@@ -10,9 +11,16 @@ void make_wtitle8(unsigned char *buf, int xsize, char *title, char act);
 
 void console_task(struct SHEET *sheet, unsigned int memtotal);
 int cons_newline(int cursor_y, struct SHEET *sheet);
-int memtotal;
 
 #define KEYCMD_LED 0xed
+
+struct FILEINFO
+{
+	unsigned char name[8], ext[3], type;
+	char reserve[10];
+	unsigned short time, date, clustno;
+	unsigned int size;
+};
 
 void HariMain(void)
 {
@@ -204,9 +212,7 @@ void HariMain(void)
 							putfonts8_asc_sht(sht_win, cursor_x, 28, COL8_000000, COL8_FFFFFF, " ", 1);
 							cursor_x -= 8;
 						}
-					}
-					else
-					{
+					} else {	/* コンソールへ */
 						fifo32_put(&task_cons->fifo, 8 + 256);
 					}
 				}
@@ -450,9 +456,11 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	struct TIMER *timer;
 	struct TASK *task = task_now();
 
+	int x, y;
 	int i, fifobuf[128], cursor_x = 16, cursor_y = 28, cursor_c = -1;
 	char s[30], cmdline[30];
 	struct MEMMAN *memman = (struct MEMMAN *)MEMMAN_ADDR;
+	struct FILEINFO *finfo = (struct FILEINFO *) (ADR_DISKIMG + 0x002600);
 
 	fifo32_init(&task->fifo, 128, fifobuf, task);
 	timer = timer_alloc();
@@ -521,9 +529,9 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 					cmdline[cursor_x/8 - 2] = 0;
 					cursor_y = cons_newline(cursor_y, sheet);
 					// 执行命令
-					if (cmdline[0] == 'm' && cmdline[1] == 'e' && cmdline[2] == 'm' && cmdline[3] == 0)
+						
+					if (strcmp(cmdline, "mem") == 0) // mem 命令
 					{
-						// mem 命令
 						sprintf(s, "total  %dMB", memtotal/ (1024*1024));
 						putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, s, 30);
 						cursor_y = cons_newline(cursor_y, sheet);
@@ -531,6 +539,44 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 						putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, s, 30);
 						cursor_y = cons_newline(cursor_y, sheet);
 						cursor_y = cons_newline(cursor_y, sheet);
+					}
+					else if (strcmp(cmdline, "cls") == 0) // 清屏
+					{
+						for(y = 28; y < 28 + 128; y++)
+						{
+							for(x = 8; x < 8 + 240; x ++)
+							{
+								sheet->buf[x + y * sheet->bxsize] = COL8_000000;
+							}
+						}
+						sheet_refresh(sheet, 8, 28, 8 + 240, 28 + 128);
+						cursor_y = 28;
+					}
+					else if (strcmp(cmdline, "dir") == 0) // dir 命令
+					{
+						for (x =0 ; x < 224; x++)
+						{
+							if(finfo[x].name[0] == 0x00)
+							{
+								break;
+							}
+							if (finfo[x].name[0] != 0xe5)// 第一个为oxe5 时，为已删除文件
+							{
+								if ((finfo[x].type & 0x18) ==0)
+								{
+									sprintf(s, "filename.ext   %7d", finfo[x].size);
+									for(y = 0; y < 8; y ++)
+									{
+										s[y] = finfo[x].name[y];
+									}
+									s[9] = finfo[x].ext[0];
+									s[10] = finfo[x].ext[1];
+									s[11] = finfo[x].ext[2];
+									putfonts8_asc_sht(sheet, 8, cursor_y, COL8_FFFFFF, COL8_000000, s, 30);
+									cursor_y = cons_newline(cursor_y, sheet);
+								}
+							}
+						}
 					}
 					else if (cmdline[0] != 0)// 不是命令，也不是空行
 					{
@@ -548,7 +594,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 					{
 						s[0] = i - 256;
 						s[1] = 0;
-						cmdline[cursor_x /8 -2] = i - 256;
+						cmdline[cursor_x /8 -2] = i - 256;// 把每个输入字符保存，自己加的注释
 						putfonts8_asc_sht(sheet, cursor_x, cursor_y, COL8_FFFFFF, COL8_000000, s, 1);
 						cursor_x += 8;
 					}
