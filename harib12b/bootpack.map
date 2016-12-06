@@ -1,5 +1,5 @@
-text size :  13256(0x033C8)
-data size :  15032(0x03AB8)
+text size :  13600(0x03520)
+data size :  15036(0x03ABC)
 bss  size :      0(0x00000)
 
 0x00000000 : (.text)
@@ -105,17 +105,17 @@ bss  size :      0(0x00000)
 0x00002569 : (.text)
 0x00002569 : _cons_newline
 0x0000260E : _console_task
-0x00002E4E : _file_readfat
-0x00002E4E : (.text)
-0x00002EA0 : _file_loadfile
-0x00002F06 : (.text)
-0x00002F06 : _HariStartup
-0x00002F0F : _sprintf
-0x00002F0F : (.text)
-0x00002F23 : (.text)
-0x00002F5F : _strtoul0
-0x00003032 : (.text)
-0x0000305A : _vsprintf
+0x00002FA6 : _file_readfat
+0x00002FA6 : (.text)
+0x00002FF8 : _file_loadfile
+0x0000305E : (.text)
+0x0000305E : _HariStartup
+0x00003067 : _sprintf
+0x00003067 : (.text)
+0x0000307B : (.text)
+0x000030B7 : _strtoul0
+0x0000318A : (.text)
+0x000031B2 : _vsprintf
 0x00000000 : (.data)
 0x00000000 : (.data)
 0x00000000 : (.data)
@@ -145,7 +145,7 @@ bss  size :      0(0x00000)
 0x00313958 : _mt_tr
 0x0031395C : (.data)
 0x00313A3C : (.data)
-0x00313A98 : (.data)
+0x00313A9C : (.data)
 0x00000000 : (.bss)
 0x00000000 : (.bss)
 0x00000000 : (.bss)
