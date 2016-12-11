@@ -1,10 +1,10 @@
 ; naskfunc
 ; TAB=4
 
-[FORMAT "WCOFF"]				; ƒIƒuƒWƒFƒNƒgƒtƒ@ƒCƒ‹‚ğì‚éƒ‚[ƒh	
-[INSTRSET "i486p"]				; 486‚Ì–½—ß‚Ü‚Åg‚¢‚½‚¢‚Æ‚¢‚¤‹Lq
-[BITS 32]						; 32ƒrƒbƒgƒ‚[ƒh—p‚Ì‹@ŠBŒê‚ğì‚ç‚¹‚é
-[FILE "naskfunc.nas"]			; ƒ\[ƒXƒtƒ@ƒCƒ‹–¼î•ñ
+[FORMAT "WCOFF"]				; Æ’IÆ’uÆ’WÆ’FÆ’NÆ’gÆ’tÆ’@Æ’CÆ’â€¹â€šÃ°ÂÃ¬â€šÃ©Æ’â€šÂ[Æ’h	
+[INSTRSET "i486p"]				; 486â€šÃŒâ€“Â½â€”ÃŸâ€šÃœâ€šÃ…Å½gâ€šÂ¢â€šÂ½â€šÂ¢â€šÃ†â€šÂ¢â€šÂ¤â€¹LÂq
+[BITS 32]						; 32Æ’rÆ’bÆ’gÆ’â€šÂ[Æ’hâ€”pâ€šÃŒâ€¹@Å BÅ’Ãªâ€šÃ°ÂÃ¬â€šÃ§â€šÂ¹â€šÃ©
+[FILE "naskfunc.nas"]			; Æ’\Â[Æ’XÆ’tÆ’@Æ’CÆ’â€¹â€“Â¼ÂÃ®â€¢Ã±
 
 		GLOBAL	_io_hlt, _io_cli, _io_sti, _io_stihlt
 		GLOBAL	_io_in8,  _io_in16,  _io_in32
@@ -17,6 +17,7 @@
 		GLOBAL	_asm_inthandler27, _asm_inthandler2c
 		GLOBAL	_memtest_sub
 		GLOBAL	_farjmp
+		GLOBAL 	_asm_cons_putchar
 		EXTERN	_inthandler20, _inthandler21
 		EXTERN	_inthandler27, _inthandler2c
 
@@ -75,14 +76,14 @@ _io_out32:	; void io_out32(int port, int data);
 		RET
 
 _io_load_eflags:	; int io_load_eflags(void);
-		PUSHFD		; PUSH EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+		PUSHFD		; PUSH EFLAGS â€šÃ†â€šÂ¢â€šÂ¤Ë†Ã“â€“Â¡
 		POP		EAX
 		RET
 
 _io_store_eflags:	; void io_store_eflags(int eflags);
 		MOV		EAX,[ESP+4]
 		PUSH	EAX
-		POPFD		; POP EFLAGS ‚Æ‚¢‚¤ˆÓ–¡
+		POPFD		; POP EFLAGS â€šÃ†â€šÂ¢â€šÂ¤Ë†Ã“â€“Â¡
 		RET
 
 _load_gdtr:		; void load_gdtr(int limit, int addr);
@@ -175,7 +176,7 @@ _asm_inthandler2c:
 		IRETD
 
 _memtest_sub:	; unsigned int memtest_sub(unsigned int start, unsigned int end)
-		PUSH	EDI						; iEBX, ESI, EDI ‚àg‚¢‚½‚¢‚Ì‚Åj
+		PUSH	EDI						; ÂiEBX, ESI, EDI â€šÃ Å½gâ€šÂ¢â€šÂ½â€šÂ¢â€šÃŒâ€šÃ…Âj
 		PUSH	ESI
 		PUSH	EBX
 		MOV		ESI,0xaa55aa55			; pat0 = 0xaa55aa55;
@@ -210,3 +211,12 @@ mts_fin:
 _farjmp:		; void farjmp(int eip, int cs);
 		JMP		FAR	[ESP+4]				; eip, cs
 		RET
+_asm_cons_putchar:
+		PUSH 	1
+		AND 	EAX, 0xff; å°†AH å’ŒEAX çš„é«˜ä½ç½®0ï¼Œ
+		PUSH 	EAX
+		PUSH 	DWORD [0x0fec]
+		CALL 	_cons_putchar
+		ADD 	ESP, 12; å°†æ ˆä¸­æ•°æ®ä¸¢å¼ƒ
+		RET
+
