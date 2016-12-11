@@ -1,4 +1,4 @@
-/* ƒRƒ“ƒ\[ƒ‹ŠÖŒW */
+/* Æ’RÆ’â€œÆ’\Â[Æ’â€¹Å Ã–Å’W */
 
 #include "bootpack.h"
 #include <stdio.h>
@@ -24,7 +24,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	timer_settime(timer, 50);
 	file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
 
-	/* ƒvƒƒ“ƒvƒg•\¦ */
+	/* Æ’vÆ’ÂÆ’â€œÆ’vÆ’gâ€¢\Å½Â¦ */
 	cons_putchar(&cons, '>', 1);
 
 	for (;;) {
@@ -35,54 +35,54 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 		} else {
 			i = fifo32_get(&task->fifo);
 			io_sti();
-			if (i <= 1) { /* ƒJ[ƒ\ƒ‹—pƒ^ƒCƒ} */
+			if (i <= 1) { /* Æ’JÂ[Æ’\Æ’â€¹â€”pÆ’^Æ’CÆ’} */
 				if (i != 0) {
-					timer_init(timer, &task->fifo, 0); /* Ÿ‚Í0‚ğ */
+					timer_init(timer, &task->fifo, 0); /* Å½Å¸â€šÃ0â€šÃ° */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_FFFFFF;
 					}
 				} else {
-					timer_init(timer, &task->fifo, 1); /* Ÿ‚Í1‚ğ */
+					timer_init(timer, &task->fifo, 1); /* Å½Å¸â€šÃ1â€šÃ° */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_000000;
 					}
 				}
 				timer_settime(timer, 50);
 			}
-			if (i == 2) {	/* ƒJ[ƒ\ƒ‹ON */
+			if (i == 2) {	/* Æ’JÂ[Æ’\Æ’â€¹ON */
 				cons.cur_c = COL8_FFFFFF;
 			}
-			if (i == 3) {	/* ƒJ[ƒ\ƒ‹OFF */
+			if (i == 3) {	/* Æ’JÂ[Æ’\Æ’â€¹OFF */
 				boxfill8(sheet->buf, sheet->bxsize, COL8_000000, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 				cons.cur_c = -1;
 			}
-			if (256 <= i && i <= 511) { /* ƒL[ƒ{[ƒhƒf[ƒ^iƒ^ƒXƒNAŒo—Rj */
+			if (256 <= i && i <= 511) { /* Æ’LÂ[Æ’{Â[Æ’hÆ’fÂ[Æ’^ÂiÆ’^Æ’XÆ’NAÅ’oâ€”RÂj */
 				if (i == 8 + 256) {
-					/* ƒoƒbƒNƒXƒy[ƒX */
+					/* Æ’oÆ’bÆ’NÆ’XÆ’yÂ[Æ’X */
 					if (cons.cur_x > 16) {
-						/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Â–ß‚· */
+						/* Æ’JÂ[Æ’\Æ’â€¹â€šÃ°Æ’XÆ’yÂ[Æ’Xâ€šÃ…ÂÃâ€šÂµâ€šÃ„â€šÂ©â€šÃ§ÂAÆ’JÂ[Æ’\Æ’â€¹â€šÃ°1â€šÃ‚â€“ÃŸâ€šÂ· */
 						cons_putchar(&cons, ' ', 0);
 						cons.cur_x -= 8;
 					}
 				} else if (i == 10 + 256) {
 					/* Enter */
-					/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚ç‰üs‚·‚é */
+					/* Æ’JÂ[Æ’\Æ’â€¹â€šÃ°Æ’XÆ’yÂ[Æ’Xâ€šÃ…ÂÃâ€šÂµâ€šÃ„â€šÂ©â€šÃ§â€°Ã¼Âsâ€šÂ·â€šÃ© */
 					cons_putchar(&cons, ' ', 0);
 					cmdline[cons.cur_x / 8 - 2] = 0;
 					cons_newline(&cons);
-					cons_runcmd(cmdline, &cons, fat, memtotal);	/* ƒRƒ}ƒ“ƒhÀs */
-					/* ƒvƒƒ“ƒvƒg•\¦ */
+					cons_runcmd(cmdline, &cons, fat, memtotal);	/* Æ’RÆ’}Æ’â€œÆ’hÅ½Ã€Âs */
+					/* Æ’vÆ’ÂÆ’â€œÆ’vÆ’gâ€¢\Å½Â¦ */
 					cons_putchar(&cons, '>', 1);
 				} else {
-					/* ˆê”Ê•¶š */
+					/* Ë†Ãªâ€ÃŠâ€¢Â¶Å½Å¡ */
 					if (cons.cur_x < 240) {
-						/* ˆê•¶š•\¦‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Âi‚ß‚é */
+						/* Ë†Ãªâ€¢Â¶Å½Å¡â€¢\Å½Â¦â€šÂµâ€šÃ„â€šÂ©â€šÃ§ÂAÆ’JÂ[Æ’\Æ’â€¹â€šÃ°1â€šÃ‚Âiâ€šÃŸâ€šÃ© */
 						cmdline[cons.cur_x / 8 - 2] = i - 256;
 						cons_putchar(&cons, i - 256, 1);
 					}
 				}
 			}
-			/* ƒJ[ƒ\ƒ‹Ä•\¦ */
+			/* Æ’JÂ[Æ’\Æ’â€¹ÂÃ„â€¢\Å½Â¦ */
 			if (cons.cur_c >= 0) {
 				boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 			}
@@ -96,7 +96,7 @@ void cons_putchar(struct CONSOLE *cons, int chr, char move)
 	char s[2];
 	s[0] = chr;
 	s[1] = 0;
-	if (s[0] == 0x09) {	/* ƒ^ƒu */
+	if (s[0] == 0x09) {	/* Æ’^Æ’u */
 		for (;;) {
 			putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, " ", 1);
 			cons->cur_x += 8;
@@ -104,17 +104,17 @@ void cons_putchar(struct CONSOLE *cons, int chr, char move)
 				cons_newline(cons);
 			}
 			if (((cons->cur_x - 8) & 0x1f) == 0) {
-				break;	/* 32‚ÅŠ„‚èØ‚ê‚½‚çbreak */
+				break;	/* 32â€šÃ…Å â€â€šÃ¨ÂÃ˜â€šÃªâ€šÂ½â€šÃ§break */
 			}
 		}
-	} else if (s[0] == 0x0a) {	/* ‰üs */
+	} else if (s[0] == 0x0a) {	/* â€°Ã¼Âs */
 		cons_newline(cons);
-	} else if (s[0] == 0x0d) {	/* •œ‹A */
-		/* ‚Æ‚è‚ ‚¦‚¸‚È‚É‚à‚µ‚È‚¢ */
-	} else {	/* •’Ê‚Ì•¶š */
+	} else if (s[0] == 0x0d) {	/* â€¢Å“â€¹A */
+		/* â€šÃ†â€šÃ¨â€šÂ â€šÂ¦â€šÂ¸â€šÃˆâ€šÃ‰â€šÃ â€šÂµâ€šÃˆâ€šÂ¢ */
+	} else {	/* â€¢Ââ€™ÃŠâ€šÃŒâ€¢Â¶Å½Å¡ */
 		putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, s, 1);
 		if (move != 0) {
-			/* move‚ª0‚Ì‚Æ‚«‚ÍƒJ[ƒ\ƒ‹‚ği‚ß‚È‚¢ */
+			/* moveâ€šÂª0â€šÃŒâ€šÃ†â€šÂ«â€šÃÆ’JÂ[Æ’\Æ’â€¹â€šÃ°Âiâ€šÃŸâ€šÃˆâ€šÂ¢ */
 			cons->cur_x += 8;
 			if (cons->cur_x == 8 + 240) {
 				cons_newline(cons);
@@ -129,9 +129,9 @@ void cons_newline(struct CONSOLE *cons)
 	int x, y;
 	struct SHEET *sheet = cons->sht;
 	if (cons->cur_y < 28 + 112) {
-		cons->cur_y += 16; /* Ÿ‚Ìs‚Ö */
+		cons->cur_y += 16; /* Å½Å¸â€šÃŒÂsâ€šÃ– */
 	} else {
-		/* ƒXƒNƒ[ƒ‹ */
+		/* Æ’XÆ’NÆ’ÂÂ[Æ’â€¹ */
 		for (y = 28; y < 28 + 112; y++) {
 			for (x = 8; x < 8 + 240; x++) {
 				sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + 16) * sheet->bxsize];
@@ -157,14 +157,15 @@ void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, unsigned int mem
 	} else if (strcmp(cmdline, "dir") == 0) {
 		cmd_dir(cons);
 	} else if (strncmp(cmdline, "type ", 5) == 0) {
-		cmd_type(cons, fat, cmdline);
-	} else if (strcmp(cmdline, "hlt") == 0) {
-		cmd_hlt(cons, fat);
+		cmd_type(cons, fat, cmdline); 
 	} else if (cmdline[0] != 0) {
-		/* ƒRƒ}ƒ“ƒh‚Å‚Í‚È‚­A‚³‚ç‚É‹ós‚Å‚à‚È‚¢ */
-		putfonts8_asc_sht(cons->sht, 8, cons->cur_y, COL8_FFFFFF, COL8_000000, "Bad command.", 12);
-		cons_newline(cons);
-		cons_newline(cons);
+		/*  */
+		if(cmd_app(cons, fat, cmdline) ==0)
+		{
+			putfonts8_asc_sht(cons->sht, 8, cons->cur_y, COL8_FFFFFF, COL8_000000, "Bad command.", 12);
+			cons_newline(cons);
+			cons_newline(cons);
+		}
 	}
 	return;
 }
@@ -231,7 +232,7 @@ void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline)
 	char *p;
 	int i;
 	if (finfo != 0) {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		p = (char *) memman_alloc_4k(memman, finfo->size);
 		file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
 		for (i = 0; i < finfo->size; i++) {
@@ -239,7 +240,7 @@ void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline)
 		}
 		memman_free_4k(memman, (int) p, finfo->size);
 	} else {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		putfonts8_asc_sht(cons->sht, 8, cons->cur_y, COL8_FFFFFF, COL8_000000, "File not found.", 15);
 		cons_newline(cons);
 	}
@@ -254,17 +255,61 @@ void cmd_hlt(struct CONSOLE *cons, int *fat)
 	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) ADR_GDT;
 	char *p;
 	if (finfo != 0) {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		p = (char *) memman_alloc_4k(memman, finfo->size);
 		file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
 		set_segmdesc(gdt + 1003, finfo->size - 1, (int) p, AR_CODE32_ER);
 		farcall(0, 1003 * 8);
 		memman_free_4k(memman, (int) p, finfo->size);
 	} else {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		putfonts8_asc_sht(cons->sht, 8, cons->cur_y, COL8_FFFFFF, COL8_000000, "File not found.", 15);
 		cons_newline(cons);
 	}
 	cons_newline(cons);
 	return;
 }
+
+int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
+{
+	struct MEMMAN *memman = (struct MEMMAN*) MEMMAN_ADDR;
+	struct FILEINFO *finfo;
+	struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *)ADR_GDT;
+	char name[18], *p;
+	int i;
+
+	for(i =0; i < 13; i ++)
+	{
+		if(cmdline[i] <= ' ')
+		{
+			break;
+		}
+		name[i] = cmdline[i];
+	}
+	name[i] = 0;// æš‚æ—¶æ¬¡æ–‡ä»¶åçš„åé¢å…¨éƒ¨ç½®ä¸º0
+
+	// å¯»æ‰¾æ–‡ä»¶
+	finfo = file_search(name, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
+	if (finfo ==0 && name[i-1] != '.')
+	{
+		// ç”±äºæ‰¾ä¸åˆ°æ–‡ä»¶ï¼Œæ•…åœ¨æ–‡ä»¶ååé¢åŠ ä¸Š ".hrb" åé‡æ–°å¯»æ‰¾
+		name[i] = '.';
+		name[i + 1] = 'H';
+		name[i + 2] = 'R';
+		name[i + 3] = 'B';
+		name[i + 4] = 0;
+		finfo = file_search(name, (struct FILEINFO  *)(ADR_DISKIMG + 0x002600), 224);
+	}
+	if (finfo != 0) // æ‰¾åˆ°æ–‡ä»¶çš„æƒ…å†µ
+	{
+		p = (char*)memman_alloc_4k(memman, finfo->size);
+		file_loadfile(finfo->clustno, finfo->size, p, fat, (char*)(ADR_DISKIMG + 0x3e00));
+		set_segmdesc(gdt + 1003, finfo->size -1 , (int) p, AR_CODE32_ER);
+		farcall(0, 1003 * 8);
+		memman_free_4k(memman, (int)p, finfo->size);
+		cons_newline(cons);
+		return 1;
+	}
+	return 0;
+}	
+

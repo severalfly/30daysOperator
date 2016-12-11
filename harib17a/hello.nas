@@ -1,0 +1,6 @@
+[BITS 32]
+	MOV AL, 'H'
+	INT 0x40
+	MOV AL, 'E'
+	INT 0x40
+	RETF
