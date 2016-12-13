@@ -288,7 +288,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 		memman_free_4k(memman, (int)p, finfo->size);
 		cons_newline(cons);
 		return 1;
-	}
+	} 
 	return 0;
 }	
 
