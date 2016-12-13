@@ -309,7 +309,7 @@ void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 	struct CONSOLE *cons = (struct CONSOLE*)*((int*) 0x0fec);
 	if(edx == 1)
 	{
-		cons_putchar(cons, eax * 0xff, 1);
+		cons_putchar(cons, eax & 0xff, 1);
 	}
 	else if (edx == 2)
 	{

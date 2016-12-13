@@ -1,4 +1,4 @@
-text size :  13376(0x03440)
+text size :  13375(0x0343F)
 data size :  15075(0x03AE3)
 bss  size :      0(0x00000)
 
@@ -115,18 +115,18 @@ bss  size :      0(0x00000)
 0x00002D5B : _cons_putstr0
 0x00002D89 : _cons_putstr1
 0x00002DBC : _hrb_api
-0x00002E1D : _file_readfat
-0x00002E1D : (.text)
-0x00002E6F : _file_loadfile
-0x00002ED5 : _file_search
-0x00002F7E : (.text)
-0x00002F7E : _HariStartup
-0x00002F87 : _sprintf
-0x00002F87 : (.text)
-0x00002F9B : (.text)
-0x00002FD7 : _strtoul0
-0x000030AA : (.text)
-0x000030D2 : _vsprintf
+0x00002E1C : _file_readfat
+0x00002E1C : (.text)
+0x00002E6E : _file_loadfile
+0x00002ED4 : _file_search
+0x00002F7D : (.text)
+0x00002F7D : _HariStartup
+0x00002F86 : _sprintf
+0x00002F86 : (.text)
+0x00002F9A : (.text)
+0x00002FD6 : _strtoul0
+0x000030A9 : (.text)
+0x000030D1 : _vsprintf
 0x00000000 : (.data)
 0x00000000 : (.data)
 0x00000000 : (.data)
