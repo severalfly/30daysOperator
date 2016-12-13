@@ -300,3 +300,26 @@ void cons_putstr1(struct CONSOLE *cons, char *s, int l)
 	}
 	return;
 }
+
+// 功能号1. 显示单个字符
+// 功能号2. 显示字符串0（EBX ＝ 字符串地址）
+// 功能号3. 显示字符串1（EBX＝字符串地址，ECX＝字符串长度）
+void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
+{
+	struct CONSOLE *cons = (struct CONSOLE*)*((int*) 0x0fec);
+	if(edx == 1)
+	{
+		cons_putchar(cons, eax * 0xff, 1);
+	}
+	else if (edx == 2)
+	{
+		cons_putstr0(cons, (char *) ebx);
+	}
+	else if (edx == 3)
+	{
+		cons_putstr1(cons, (char*)ebx, ecx);
+	}
+	return;
+}
+
+
