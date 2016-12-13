@@ -52,6 +52,12 @@ hello.hrb : hello.nas Makefile
 hello2.hrb : hello2.nas Makefile
 	$(NASK) hello2.nas hello2.hrb hello2.lst
 
+a.bim : a.obj a_nask.obj Makefile
+	$(OBJ2BIM) @$(RULEFILE) out:a.bim map:a.map a.obj a_nask.obj
+
+a.hrb : a.bim Makefile
+	$(BIM2HRB) a.bim a.hrb 0
+
 haribote.sys : asmhead.bin bootpack.hrb Makefile
 	copy /B asmhead.bin+bootpack.hrb haribote.sys
 
@@ -63,7 +69,10 @@ haribote.img : ipl10.bin haribote.sys hello.hrb hello2.hrb Makefile
 		copy from:make.bat to:@: \
 		copy from:hello.hrb to:@: \
 		copy from:hello2.hrb to:@: \
+		copy from:a.hrb to:@: \
 		imgout:haribote.img
+
+
 
 # ˆê”Ê‹K‘¥
 
@@ -94,9 +103,9 @@ clean :
 	-$(DEL) *.bin
 	-$(DEL) *.lst
 	-$(DEL) *.obj
-	-$(DEL) bootpack.map
-	-$(DEL) bootpack.bim
-	-$(DEL) bootpack.hrb
+	-$(DEL) *.map
+	-$(DEL) *.bim
+	-$(DEL) *.hrb
 	-$(DEL) haribote.sys
 
 src_only :

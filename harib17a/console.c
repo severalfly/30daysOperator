@@ -272,6 +272,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 	if (finfo != 0) // 找到文件的情况
 	{
 		p = (char*)memman_alloc_4k(memman, finfo->size);
+		*((int*)0xfe8) = (int)p;
 		file_loadfile(finfo->clustno, finfo->size, p, fat, (char*)(ADR_DISKIMG + 0x3e00));
 		set_segmdesc(gdt + 1003, finfo->size -1 , (int) p, AR_CODE32_ER);
 		farcall(0, 1003 * 8);
@@ -306,6 +307,7 @@ void cons_putstr1(struct CONSOLE *cons, char *s, int l)
 // 功能号3. 显示字符串1（EBX＝字符串地址，ECX＝字符串长度）
 void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax)
 {
+	int cs_base = *((int*) 0xfe8);
 	struct CONSOLE *cons = (struct CONSOLE*)*((int*) 0x0fec);
 	if(edx == 1)
 	{
@@ -313,11 +315,11 @@ void hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 	}
 	else if (edx == 2)
 	{
-		cons_putstr0(cons, (char *) ebx);
+		cons_putstr0(cons, (char *) ebx + cs_base);
 	}
 	else if (edx == 3)
 	{
-		cons_putstr1(cons, (char*)ebx, ecx);
+		cons_putstr1(cons, (char*)ebx + cs_base, ecx);
 	}
 	return;
 }
