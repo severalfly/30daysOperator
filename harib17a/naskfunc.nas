@@ -18,9 +18,12 @@
 		GLOBAL	_memtest_sub
 		GLOBAL	_farjmp, _farcall
 		GLOBAL 	_asm_cons_putchar
+		GLOBAL	_asm_hrb_api
+		GLOBAL	_start_app
 		EXTERN	_inthandler20, _inthandler21
 		EXTERN	_inthandler27, _inthandler2c
 		EXTERN 	_cons_putchar
+		EXTERN 	_hrb_api
 
 [SECTION .text]
 
@@ -225,5 +228,47 @@ _asm_cons_putchar:
 		CALL 	_cons_putchar
 		ADD 	ESP, 12; 将栈中数据丢弃
 		POPAD
+<<<<<<< HEAD
+=======
 		IRETD
+_asm_hrb_api:
+		STI
+		PUSHAD
+		PUSHAD
+		CALL _hrb_api
+		ADD 	ESP, 32
+		POPAD
+>>>>>>> b1dc794128dbe0c57ca69c4598bad1d2999c7d49
+		IRETD
+_start_app: ;void start_app(int eip, int cs, int esp, int ds);
+		PUSHAD ; 将32位寄存器的值全部保存起来
+		MOV 	EAX, [ESP + 36]
+		MOV		ECX, [ESP + 40]
+		MOV		EDX, [ESP + 44]
+		MOV 	EBX, [ESP + 48]
+		MOV		[0xfe4], ESP
+		CLI  ; 在切换过程中禁止中断请求
+
+		MOV		ES, BX
+		MOV		SS, BX
+		MOV		DS, BX
+		MOV		FS,BX
+		MOV		GS,	BX
+		MOV		ESP,	EDX
+		STI
+		PUSH 	ECX
+		PUSH 	EAX
+		CALL 	FAR[ESP]
+; 应用程序结束后返回此处
+		MOV		EAX, 1*8
+		CLI
+		MOV		ES, AX
+		MOV 	SS, AX
+		MOV 	DX, AX
+		MOV		FS, AX
+		MOV		GS, AX
+		MOV		ESP, [0xfe4]
+		STI
+		POPAD
+		RET
 
