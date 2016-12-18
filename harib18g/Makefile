@@ -76,8 +76,11 @@ crack1.hrb : crack1.bim Makefile
 crack2.hrb : crack2.nas Makefile
 	$(NASK) crack2.nas crack2.hrb crack2.lst
 
+crack3.hrb : crack3.nas Makefile
+	$(NASK) crack3.nas crack3.hrb crack3.lst
+
 haribote.img : ipl10.bin haribote.sys Makefile \
-		hello.hrb hello2.hrb a.hrb hello3.hrb crack1.hrb crack2.hrb
+		hello.hrb hello2.hrb a.hrb hello3.hrb crack1.hrb crack2.hrb crack3.hrb
 	$(EDIMG)   imgin:../z_tools/fdimg0at.tek \
 		wbinimg src:ipl10.bin len:512 from:0 to:0 \
 		copy from:haribote.sys to:@: \
@@ -89,6 +92,7 @@ haribote.img : ipl10.bin haribote.sys Makefile \
 		copy from:hello3.hrb to:@: \
 		copy from:crack1.hrb to:@: \
 		copy from:crack2.hrb to:@: \
+		copy from:crack3.hrb to:@: \
 		imgout:haribote.img
 
 # ˆê”Ê‹K‘¥
