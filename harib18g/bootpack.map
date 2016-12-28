@@ -1,5 +1,5 @@
-text size :  13981(0x0369D)
-data size :  15180(0x03B4C)
+text size :  14029(0x036CD)
+data size :  15205(0x03B65)
 bss  size :      0(0x00000)
 
 0x00000000 : (.text)
@@ -117,21 +117,21 @@ bss  size :      0(0x00000)
 0x00002CC1 : _cmd_dir
 0x00002D57 : _cmd_type
 0x00002DE7 : _cmd_app
-0x00002F79 : _hrb_api
-0x00002FE8 : _inthandler0c
-0x00003031 : _inthandler0d
-0x0000307A : _file_readfat
-0x0000307A : (.text)
-0x000030CC : _file_loadfile
-0x00003132 : _file_search
-0x000031DB : (.text)
-0x000031DB : _HariStartup
-0x000031E4 : _sprintf
-0x000031E4 : (.text)
-0x000031F8 : (.text)
-0x00003234 : _strtoul0
-0x00003307 : (.text)
-0x0000332F : _vsprintf
+0x00002FA9 : _hrb_api
+0x00003018 : _inthandler0c
+0x00003061 : _inthandler0d
+0x000030AA : _file_readfat
+0x000030AA : (.text)
+0x000030FC : _file_loadfile
+0x00003162 : _file_search
+0x0000320B : (.text)
+0x0000320B : _HariStartup
+0x00003214 : _sprintf
+0x00003214 : (.text)
+0x00003228 : (.text)
+0x00003264 : _strtoul0
+0x00003337 : (.text)
+0x0000335F : _vsprintf
 0x00000000 : (.data)
 0x00000000 : (.data)
 0x00000000 : (.data)
@@ -159,7 +159,7 @@ bss  size :      0(0x00000)
 0x00313990 : _taskctl
 0x00313994 : (.data)
 0x00313A74 : (.data)
-0x00313B2C : (.data)
+0x00313B45 : (.data)
 0x00000000 : (.bss)
 0x00000000 : (.bss)
 0x00000000 : (.bss)

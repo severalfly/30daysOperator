@@ -151,7 +151,7 @@ void HariMain(void)
 				if (i == 256 + 0x3b && key_shift != 0 && task_cons->tss.ss0 != 0) // shift + F1
 				{
 					cons = (struct CONSOLE *) *((int *) 0x0fec);
-					cons_putstr0(cons,"end app by shift+F1");
+					cons_putstr0(cons,"Break app by shift+F1");
 					io_cli(); // 不能在改变寄存器值时切换到其他任务
 					task_cons->tss.eax = (int) &(task_cons->tss.esp0);
 					task_cons->tss.eip = (int) asm_end_app;

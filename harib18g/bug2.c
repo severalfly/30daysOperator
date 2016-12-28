@@ -1,4 +1,7 @@
+
 void HariMain(void)
 {
-	for(;;){}
+	for(;;){
+		
+	}
 }
