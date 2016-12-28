@@ -15,13 +15,14 @@
 		GLOBAL	_load_tr
 		GLOBAL	_asm_inthandler20, _asm_inthandler21
 		GLOBAL	_asm_inthandler27, _asm_inthandler2c
-		GLOBAL	_asm_inthandler0d
+		GLOBAL	_asm_inthandler0d, _asm_inthandler0c
 		GLOBAL	_memtest_sub
 		GLOBAL	_farjmp, _farcall
 		GLOBAL	_asm_hrb_api, _start_app
+		GLOBAL  _asm_end_app
 		EXTERN	_inthandler20, _inthandler21
 		EXTERN	_inthandler27, _inthandler2c
-		EXTERN	_inthandler0d
+		EXTERN	_inthandler0d, _inthandler0c
 		EXTERN	_hrb_api
 
 [SECTION .text]
@@ -190,7 +191,7 @@ _asm_inthandler0d:
 		MOV		ES,AX
 		CALL	_inthandler0d
 		CMP		EAX,0		; ここだけ違う
-		JNE		end_app		; ここだけ違う
+		JNE		_asm_end_app		; ここだけ違う
 		POP		EAX
 		POPAD
 		POP		DS
@@ -250,18 +251,19 @@ _asm_hrb_api:
 		MOV		ES,AX
 		CALL	_hrb_api
 		CMP		EAX,0		; EAXが0でなければアプリ終了処理
-		JNE		end_app
+		JNE		_asm_end_app
 		ADD		ESP,32
 		POPAD
 		POP		ES
 		POP		DS
 		IRETD
-end_app:
-;	EAXはtss.esp0の番地
-		MOV		ESP,[EAX]
-		POPAD
-		RET					; cmd_appへ帰る
 
+
+_asm_end_app:
+		MOV 	ESP, [EAX]
+		MOV 	DWORD [EAX + 4], 0
+		POPAD 
+		RET
 _start_app:		; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
 		PUSHAD		; 32ビットレジスタを全部保存しておく
 		MOV		EAX,[ESP+36]	; アプリ用のEIP
@@ -284,3 +286,24 @@ _start_app:		; void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
 		PUSH	EAX				; アプリのEIP
 		RETF
 ;	アプリが終了してもここには来ない
+
+_asm_inthandler0c:
+		STI
+		PUSH 	ES
+		PUSH 	DS
+		PUSHAD
+		MOV 	EAX, ESP
+		PUSH 	EAX
+		MOV 	AX, SS
+		MOV 	DS, AX
+		MOV 	ES, AX
+		CALL 	_inthandler0c
+		CMP 	EAX, 0
+		JNE 	end_app
+		POP 	EAX
+		POPAD
+		POP 	DS
+		POP 	ES
+		ADD 	ESP, 4
+		IRETD
+

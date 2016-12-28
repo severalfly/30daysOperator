@@ -1,4 +1,4 @@
-/* ƒRƒ“ƒ\[ƒ‹ŠÖŒW */
+/* Æ’RÆ’â€œÆ’\Â[Æ’â€¹Å Ã–Å’W */
 
 #include "bootpack.h"
 #include <stdio.h>
@@ -24,7 +24,7 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 	timer_settime(timer, 50);
 	file_readfat(fat, (unsigned char *) (ADR_DISKIMG + 0x000200));
 
-	/* ƒvƒƒ“ƒvƒg•\¦ */
+	/* Æ’vÆ’ÂÆ’â€œÆ’vÆ’gâ€¢\Å½Â¦ */
 	cons_putchar(&cons, '>', 1);
 
 	for (;;) {
@@ -35,54 +35,54 @@ void console_task(struct SHEET *sheet, unsigned int memtotal)
 		} else {
 			i = fifo32_get(&task->fifo);
 			io_sti();
-			if (i <= 1) { /* ƒJ[ƒ\ƒ‹—pƒ^ƒCƒ} */
+			if (i <= 1) { /* Æ’JÂ[Æ’\Æ’â€¹â€”pÆ’^Æ’CÆ’} */
 				if (i != 0) {
-					timer_init(timer, &task->fifo, 0); /* Ÿ‚Í0‚ğ */
+					timer_init(timer, &task->fifo, 0); /* Å½Å¸â€šÃ0â€šÃ° */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_FFFFFF;
 					}
 				} else {
-					timer_init(timer, &task->fifo, 1); /* Ÿ‚Í1‚ğ */
+					timer_init(timer, &task->fifo, 1); /* Å½Å¸â€šÃ1â€šÃ° */
 					if (cons.cur_c >= 0) {
 						cons.cur_c = COL8_000000;
 					}
 				}
 				timer_settime(timer, 50);
 			}
-			if (i == 2) {	/* ƒJ[ƒ\ƒ‹ON */
+			if (i == 2) {	/* Æ’JÂ[Æ’\Æ’â€¹ON */
 				cons.cur_c = COL8_FFFFFF;
 			}
-			if (i == 3) {	/* ƒJ[ƒ\ƒ‹OFF */
+			if (i == 3) {	/* Æ’JÂ[Æ’\Æ’â€¹OFF */
 				boxfill8(sheet->buf, sheet->bxsize, COL8_000000, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 				cons.cur_c = -1;
 			}
-			if (256 <= i && i <= 511) { /* ƒL[ƒ{[ƒhƒf[ƒ^iƒ^ƒXƒNAŒo—Rj */
+			if (256 <= i && i <= 511) { /* Æ’LÂ[Æ’{Â[Æ’hÆ’fÂ[Æ’^ÂiÆ’^Æ’XÆ’NAÅ’oâ€”RÂj */
 				if (i == 8 + 256) {
-					/* ƒoƒbƒNƒXƒy[ƒX */
+					/* Æ’oÆ’bÆ’NÆ’XÆ’yÂ[Æ’X */
 					if (cons.cur_x > 16) {
-						/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Â–ß‚· */
+						/* Æ’JÂ[Æ’\Æ’â€¹â€šÃ°Æ’XÆ’yÂ[Æ’Xâ€šÃ…ÂÃâ€šÂµâ€šÃ„â€šÂ©â€šÃ§ÂAÆ’JÂ[Æ’\Æ’â€¹â€šÃ°1â€šÃ‚â€“ÃŸâ€šÂ· */
 						cons_putchar(&cons, ' ', 0);
 						cons.cur_x -= 8;
 					}
 				} else if (i == 10 + 256) {
 					/* Enter */
-					/* ƒJ[ƒ\ƒ‹‚ğƒXƒy[ƒX‚ÅÁ‚µ‚Ä‚©‚ç‰üs‚·‚é */
+					/* Æ’JÂ[Æ’\Æ’â€¹â€šÃ°Æ’XÆ’yÂ[Æ’Xâ€šÃ…ÂÃâ€šÂµâ€šÃ„â€šÂ©â€šÃ§â€°Ã¼Âsâ€šÂ·â€šÃ© */
 					cons_putchar(&cons, ' ', 0);
 					cmdline[cons.cur_x / 8 - 2] = 0;
 					cons_newline(&cons);
-					cons_runcmd(cmdline, &cons, fat, memtotal);	/* ƒRƒ}ƒ“ƒhÀs */
-					/* ƒvƒƒ“ƒvƒg•\¦ */
+					cons_runcmd(cmdline, &cons, fat, memtotal);	/* Æ’RÆ’}Æ’â€œÆ’hÅ½Ã€Âs */
+					/* Æ’vÆ’ÂÆ’â€œÆ’vÆ’gâ€¢\Å½Â¦ */
 					cons_putchar(&cons, '>', 1);
 				} else {
-					/* ˆê”Ê•¶š */
+					/* Ë†Ãªâ€ÃŠâ€¢Â¶Å½Å¡ */
 					if (cons.cur_x < 240) {
-						/* ˆê•¶š•\¦‚µ‚Ä‚©‚çAƒJ[ƒ\ƒ‹‚ğ1‚Âi‚ß‚é */
+						/* Ë†Ãªâ€¢Â¶Å½Å¡â€¢\Å½Â¦â€šÂµâ€šÃ„â€šÂ©â€šÃ§ÂAÆ’JÂ[Æ’\Æ’â€¹â€šÃ°1â€šÃ‚Âiâ€šÃŸâ€šÃ© */
 						cmdline[cons.cur_x / 8 - 2] = i - 256;
 						cons_putchar(&cons, i - 256, 1);
 					}
 				}
 			}
-			/* ƒJ[ƒ\ƒ‹Ä•\¦ */
+			/* Æ’JÂ[Æ’\Æ’â€¹ÂÃ„â€¢\Å½Â¦ */
 			if (cons.cur_c >= 0) {
 				boxfill8(sheet->buf, sheet->bxsize, cons.cur_c, cons.cur_x, cons.cur_y, cons.cur_x + 7, cons.cur_y + 15);
 			}
@@ -96,7 +96,7 @@ void cons_putchar(struct CONSOLE *cons, int chr, char move)
 	char s[2];
 	s[0] = chr;
 	s[1] = 0;
-	if (s[0] == 0x09) {	/* ƒ^ƒu */
+	if (s[0] == 0x09) {	/* Æ’^Æ’u */
 		for (;;) {
 			putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, " ", 1);
 			cons->cur_x += 8;
@@ -104,17 +104,17 @@ void cons_putchar(struct CONSOLE *cons, int chr, char move)
 				cons_newline(cons);
 			}
 			if (((cons->cur_x - 8) & 0x1f) == 0) {
-				break;	/* 32‚ÅŠ„‚èØ‚ê‚½‚çbreak */
+				break;	/* 32â€šÃ…Å â€â€šÃ¨ÂÃ˜â€šÃªâ€šÂ½â€šÃ§break */
 			}
 		}
-	} else if (s[0] == 0x0a) {	/* ‰üs */
+	} else if (s[0] == 0x0a) {	/* â€°Ã¼Âs */
 		cons_newline(cons);
-	} else if (s[0] == 0x0d) {	/* •œ‹A */
-		/* ‚Æ‚è‚ ‚¦‚¸‚È‚É‚à‚µ‚È‚¢ */
-	} else {	/* •’Ê‚Ì•¶š */
+	} else if (s[0] == 0x0d) {	/* â€¢Å“â€¹A */
+		/* â€šÃ†â€šÃ¨â€šÂ â€šÂ¦â€šÂ¸â€šÃˆâ€šÃ‰â€šÃ â€šÂµâ€šÃˆâ€šÂ¢ */
+	} else {	/* â€¢Ââ€™ÃŠâ€šÃŒâ€¢Â¶Å½Å¡ */
 		putfonts8_asc_sht(cons->sht, cons->cur_x, cons->cur_y, COL8_FFFFFF, COL8_000000, s, 1);
 		if (move != 0) {
-			/* move‚ª0‚Ì‚Æ‚«‚ÍƒJ[ƒ\ƒ‹‚ği‚ß‚È‚¢ */
+			/* moveâ€šÂª0â€šÃŒâ€šÃ†â€šÂ«â€šÃÆ’JÂ[Æ’\Æ’â€¹â€šÃ°Âiâ€šÃŸâ€šÃˆâ€šÂ¢ */
 			cons->cur_x += 8;
 			if (cons->cur_x == 8 + 240) {
 				cons_newline(cons);
@@ -129,9 +129,9 @@ void cons_newline(struct CONSOLE *cons)
 	int x, y;
 	struct SHEET *sheet = cons->sht;
 	if (cons->cur_y < 28 + 112) {
-		cons->cur_y += 16; /* Ÿ‚Ìs‚Ö */
+		cons->cur_y += 16; /* Å½Å¸â€šÃŒÂsâ€šÃ– */
 	} else {
-		/* ƒXƒNƒ[ƒ‹ */
+		/* Æ’XÆ’NÆ’ÂÂ[Æ’â€¹ */
 		for (y = 28; y < 28 + 112; y++) {
 			for (x = 8; x < 8 + 240; x++) {
 				sheet->buf[x + y * sheet->bxsize] = sheet->buf[x + (y + 16) * sheet->bxsize];
@@ -177,7 +177,7 @@ void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, unsigned int mem
 		cmd_type(cons, fat, cmdline);
 	} else if (cmdline[0] != 0) {
 		if (cmd_app(cons, fat, cmdline) == 0) {
-			/* ƒRƒ}ƒ“ƒh‚Å‚Í‚È‚­AƒAƒvƒŠ‚Å‚à‚È‚­A‚³‚ç‚É‹ós‚Å‚à‚È‚¢ */
+			/* Æ’RÆ’}Æ’â€œÆ’hâ€šÃ…â€šÃâ€šÃˆâ€šÂ­ÂAÆ’AÆ’vÆ’Å â€šÃ…â€šÃ â€šÃˆâ€šÂ­ÂAâ€šÂ³â€šÃ§â€šÃ‰â€¹Ã³Âsâ€šÃ…â€šÃ â€šÃˆâ€šÂ¢ */
 			cons_putstr0(cons, "Bad command.\n\n");
 		}
 	}
@@ -239,13 +239,13 @@ void cmd_type(struct CONSOLE *cons, int *fat, char *cmdline)
 	struct FILEINFO *finfo = file_search(cmdline + 5, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
 	char *p;
 	if (finfo != 0) {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		p = (char *) memman_alloc_4k(memman, finfo->size);
 		file_loadfile(finfo->clustno, finfo->size, p, fat, (char *) (ADR_DISKIMG + 0x003e00));
 		cons_putstr1(cons, p, finfo->size);
 		memman_free_4k(memman, (int) p, finfo->size);
 	} else {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		cons_putstr0(cons, "File not found.\n");
 	}
 	cons_newline(cons);
@@ -261,19 +261,19 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 	struct TASK *task = task_now();
 	int i;
 
-	/* ƒRƒ}ƒ“ƒhƒ‰ƒCƒ“‚©‚çƒtƒ@ƒCƒ‹–¼‚ğ¶¬ */
+	/* Æ’RÆ’}Æ’â€œÆ’hÆ’â€°Æ’CÆ’â€œâ€šÂ©â€šÃ§Æ’tÆ’@Æ’CÆ’â€¹â€“Â¼â€šÃ°ÂÂ¶ÂÂ¬ */
 	for (i = 0; i < 13; i++) {
 		if (cmdline[i] <= ' ') {
 			break;
 		}
 		name[i] = cmdline[i];
 	}
-	name[i] = 0; /* ‚Æ‚è‚ ‚¦‚¸ƒtƒ@ƒCƒ‹–¼‚ÌŒã‚ë‚ğ0‚É‚·‚é */
+	name[i] = 0; /* â€šÃ†â€šÃ¨â€šÂ â€šÂ¦â€šÂ¸Æ’tÆ’@Æ’CÆ’â€¹â€“Â¼â€šÃŒÅ’Ã£â€šÃ«â€šÃ°0â€šÃ‰â€šÂ·â€šÃ© */
 
-	/* ƒtƒ@ƒCƒ‹‚ğ’T‚· */
+	/* Æ’tÆ’@Æ’CÆ’â€¹â€šÃ°â€™Tâ€šÂ· */
 	finfo = file_search(name, (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224);
 	if (finfo == 0 && name[i - 1] != '.') {
-		/* Œ©‚Â‚©‚ç‚È‚©‚Á‚½‚Ì‚ÅŒã‚ë‚É".HRB"‚ğ‚Â‚¯‚Ä‚à‚¤ˆê“x’T‚µ‚Ä‚İ‚é */
+		/* Å’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃâ€šÂ½â€šÃŒâ€šÃ…Å’Ã£â€šÃ«â€šÃ‰".HRB"â€šÃ°â€šÃ‚â€šÂ¯â€šÃ„â€šÃ â€šÂ¤Ë†Ãªâ€œxâ€™Tâ€šÂµâ€šÃ„â€šÃâ€šÃ© */
 		name[i    ] = '.';
 		name[i + 1] = 'H';
 		name[i + 2] = 'R';
@@ -283,7 +283,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 	}
 
 	if (finfo != 0) {
-		/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚Á‚½ê‡ */
+		/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 		p = (char *) memman_alloc_4k(memman, finfo->size);
 		q = (char *) memman_alloc_4k(memman, 64 * 1024);
 		*((int *) 0xfe8) = (int) p;
@@ -304,7 +304,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline)
 		cons_newline(cons);
 		return 1;
 	}
-	/* ƒtƒ@ƒCƒ‹‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡ */
+	/* Æ’tÆ’@Æ’CÆ’â€¹â€šÂªÅ’Â©â€šÃ‚â€šÂ©â€šÃ§â€šÃˆâ€šÂ©â€šÃâ€šÂ½ÂÃªÂâ€¡ */
 	return 0;
 }
 
@@ -325,10 +325,31 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 	return 0;
 }
 
+
+
+/**
+ * CPU æ ˆå¼‚å¸¸
+ * @param  esp 
+ * @return     
+ */
+int *inthandler0c(int *esp)
+{
+	struct CONSOLE *cons = (struct CONSOLE *) *((int *) 0x0fec);
+	struct TASK *task = task_now();
+	char s[30];
+	cons_putstr0(cons, "\nINT 0C :\n Stack Exception.\n");
+	sprintf(s, "EIP = %08X\n", esp[11]);
+	cons_putstr0(cons, s);
+	return &(task->tss.esp0);
+}
+
 int *inthandler0d(int *esp)
 {
 	struct CONSOLE *cons = (struct CONSOLE *) *((int *) 0x0fec);
 	struct TASK *task = task_now();
+	char s[30];
 	cons_putstr0(cons, "\nINT 0D :\n General Protected Exception.\n");
-	return &(task->tss.esp0);	/* ˆÙíI—¹‚³‚¹‚é */
+	sprintf(s, "EIP = %08X\n", esp[11]);
+	cons_putstr0(cons, s);
+	return &(task->tss.esp0);	/* Ë†Ã™ÂÃ­ÂIâ€”Â¹â€šÂ³â€šÂ¹â€šÃ© */
 }
