@@ -1,4 +1,4 @@
-text size :    112(0x00070)
+text size :    192(0x000C0)
 data size :   7516(0x01D5C)
 bss  size :      0(0x00000)
 
@@ -9,8 +9,10 @@ bss  size :      0(0x00000)
 0x00000054 : _api_end
 0x0000005B : _api_putstr0
 0x00000069 : _api_openwin
-0x0000008B : (.text)
-0x0000008B : _HariStartup
+0x0000008B : _api_putstrwin
+0x000000B3 : _api_boxfilwin
+0x000000DB : (.text)
+0x000000DB : _HariStartup
 0x00000000 : (.data)
 0x00000000 : (.data)
 0x00000400 : (.data)

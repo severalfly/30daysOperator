@@ -343,6 +343,33 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
 		sheet_updown(sht, 3);
 		reg[7] = (int)sht;
 	}
+	else if (edx == 6)
+	{
+		// edx = 6
+		// ebx 	窗口句柄
+		// esi：显示位置x坐标
+		// edi: 显示位置y坐标
+		// eax 	色号
+		// ecx 	字符串长度
+		// ebp 	字符串
+		sht = (struct SHEET *)ebx;
+		putfonts8_asc(sht->buf, sht->bxsize, esi, edi, eax, (char*)ebp + ds_base);
+		sheet_refresh(sht, esi, edi ,esi + ecx *8, edi + 16);
+	}
+	else if (edx == 7)
+	{
+		// edx 	7
+		// ebx 	窗口句柄
+		// esi 	x0
+		// edi 	y0
+		// eax 	x1
+		// ecx 	y1
+		// ebp 	色号
+		sht = (struct SHEET*)ebx;
+		boxfill8(sht->buf, sht->bxsize, ebp, eax, ecx, esi, edi);
+		sheet_refresh(sht, eax, ecx, esi + 1, edi+1);
+	}
+
 	return 0;
 }
 
