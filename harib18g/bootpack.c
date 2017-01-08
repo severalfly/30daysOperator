@@ -63,6 +63,7 @@ void HariMain(void)
 	task_a = task_init(memman);
 	fifo.task = task_a;
 	task_run(task_a, 1, 2);
+	*((int *) 0x0fe4) = (int) shtctl;
 
 	/* sht_back */
 	sht_back  = sheet_alloc(shtctl);
@@ -110,9 +111,9 @@ void HariMain(void)
 	mx = (binfo->scrnx - 16) / 2; /* ‰æ–Ê’†‰›‚É‚È‚é‚æ‚¤‚ÉÀ•WŒvŽZ */
 	my = (binfo->scrny - 28 - 16) / 2;
 
-	sheet_slide(sht_back,  0,  0);
-	sheet_slide(sht_cons, 32,  4);
-	sheet_slide(sht_win,  64, 56);
+	sheet_slide(sht_back,  0,  0);// 移动背景位置
+	sheet_slide(sht_cons, 32,  4);	// 移动命令行位置
+	sheet_slide(sht_win,  200, 200); 	// 移动测试窗口位置
 	sheet_slide(sht_mouse, mx, my);
 	sheet_updown(sht_back,  0);
 	sheet_updown(sht_cons,  1);

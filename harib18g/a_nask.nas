@@ -5,6 +5,7 @@
 
 		GLOBAL	_api_putchar
 		GLOBAL	_api_end, _api_putstr0
+		GLOBAL	_api_openwin
 
 [SECTION .text]
 
@@ -24,3 +25,19 @@ _api_putstr0: ;void api_putstr0(char *s)
 		INT 	0x40
 		POP 	EBX
 		RET
+_api_openwin: ; int api_openwin(char *buf, int xsize, int ysize, int colinv, char * title)
+		PUSH 	EDI
+		PUSH 	ESI
+		PUSH 	EBX
+		MOV 	EDX, 5
+		MOV 	EBX,[ESP + 16]; BUF
+		MOV 	ESI,[ESP + 20]
+		MOV 	EDI,[ESP + 24]
+		MOV 	EAX,[ESP + 28]
+		MOV 	ECX,[ESP + 32]
+		INT 	0X40
+		POP		EBX
+		POP 	ESI
+		POP 	EDI
+		RET
+

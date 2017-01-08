@@ -264,3 +264,5 @@ void file_readfat(int *fat, unsigned char *img);
 void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
 struct FILEINFO *file_search(char *name, struct FILEINFO *finfo, int max);
 
+// a_nask.nas
+//int api_openwin(char *buf, int xsize, int ysize, int colinv, char * title);
